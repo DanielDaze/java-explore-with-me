@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS HIT (
+    id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
+    app varchar,
+    uri varchar,
+    ip varchar,
+    date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    CONSTRAINT pk_hit PRIMARY KEY (id)
+);
