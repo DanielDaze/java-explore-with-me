@@ -10,6 +10,7 @@ import ru.practicum.repository.HitRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +25,13 @@ public class MainService {
         List<ViewStats> viewStatsList = new ArrayList<>();
         if (unique) {
             for (String s : uris) {
-                viewStatsList.add(repository.getViewStatsUnique(start, end, s));
+                ViewStats viewStats = repository.getViewStatsUnique(start, end, s);
+                viewStatsList.add(Objects.requireNonNullElseGet(viewStats, () -> new ViewStats("ewm-main-service", s, 0L)));
             }
         } else {
             for (String s : uris) {
-                viewStatsList.add(repository.getViewStats(start, end, s));
+                ViewStats viewStats = repository.getViewStats(start, end, s);
+                viewStatsList.add(Objects.requireNonNullElseGet(viewStats, () -> new ViewStats("ewm-main-service", s, 0L)));
             }
         }
         return viewStatsList;
