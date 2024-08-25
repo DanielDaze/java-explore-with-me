@@ -1,7 +1,7 @@
-package ru.practicum.model.mapper;
+package ru.practicum.service.model.mapper;
 
-import ru.practicum.dto.EndpointHitDto;
-import ru.practicum.model.EndpointHit;
+import ru.practicum.models.dto.EndpointHitDto;
+import ru.practicum.service.model.EndpointHit;
 
 public class EndpointHitMapper {
     public static EndpointHit mapToEndpointHit(EndpointHitDto dto) {
