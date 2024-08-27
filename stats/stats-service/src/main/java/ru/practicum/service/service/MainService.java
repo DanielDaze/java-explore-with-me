@@ -8,9 +8,7 @@ import ru.practicum.service.model.mapper.EndpointHitMapper;
 import ru.practicum.service.repository.HitRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +32,7 @@ public class MainService {
                 viewStatsList.add(Objects.requireNonNullElseGet(viewStats, () -> new ViewStats("ewm-main-service", s, 0L)));
             }
         }
+        viewStatsList.sort(Comparator.comparing(ViewStats::getHits).reversed());
         return viewStatsList;
     }
 }
