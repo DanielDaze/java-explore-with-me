@@ -21,15 +21,23 @@ public class MainService {
 
     public List<ViewStats> getViewStats(LocalDateTime start, LocalDateTime end, String[] uris, Boolean unique) {
         List<ViewStats> viewStatsList = new ArrayList<>();
-        if (unique) {
-            for (String s : uris) {
-                ViewStats viewStats = repository.getViewStatsUnique(start, end, s);
-                viewStatsList.add(Objects.requireNonNullElseGet(viewStats, () -> new ViewStats("ewm-main-service", s, 0L)));
+        if (uris == null) {
+            if (unique) {
+                viewStatsList = repository.getAllViewStats(start, end);
+            } else {
+                viewStatsList = repository.getAllViewStatsUnique(start, end);
             }
         } else {
-            for (String s : uris) {
-                ViewStats viewStats = repository.getViewStats(start, end, s);
-                viewStatsList.add(Objects.requireNonNullElseGet(viewStats, () -> new ViewStats("ewm-main-service", s, 0L)));
+            if (unique) {
+                for (String s : uris) {
+                    ViewStats viewStats = repository.getViewStatsUnique(start, end, s);
+                    viewStatsList.add(Objects.requireNonNullElseGet(viewStats, () -> new ViewStats("ewm-main-service", s, 0L)));
+                }
+            } else {
+                for (String s : uris) {
+                    ViewStats viewStats = repository.getViewStats(start, end, s);
+                    viewStatsList.add(Objects.requireNonNullElseGet(viewStats, () -> new ViewStats("ewm-main-service", s, 0L)));
+                }
             }
         }
         viewStatsList.sort(Comparator.comparing(ViewStats::getHits).reversed());
