@@ -23,9 +23,7 @@ public class MainController {
     @ResponseStatus(HttpStatus.CREATED)
     public EndpointHitDto saveHit(@RequestBody EndpointHitDto hit) {
         log.info("POST /hit <- {}", hit);
-        EndpointHitDto dto = service.saveHit(hit);
-        log.info("POST /hit -> {}", dto);
-        return dto;
+        return service.saveHit(hit);
     }
 
     @GetMapping("/stats")
@@ -33,8 +31,6 @@ public class MainController {
                                         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                         @RequestParam(required = false) String[] uris, @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("GET /stats <- with start={}, end={} uri={} unique={}", start, end, uris, unique);
-        List<ViewStats> viewStatsList = service.getViewStats(start, end, uris, unique);
-        log.info("GET /stats -> {}", viewStatsList);
-        return viewStatsList;
+        return service.getViewStats(start, end, uris, unique);
     }
 }

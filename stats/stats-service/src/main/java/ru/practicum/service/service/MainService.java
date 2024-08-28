@@ -1,7 +1,9 @@
 package ru.practicum.service.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.models.dto.EndpointHitDto;
 import ru.practicum.models.dto.ViewStats;
 import ru.practicum.service.model.mapper.EndpointHitMapper;
@@ -12,13 +14,18 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MainService {
     private final HitRepository repository;
 
+    @Transactional
     public EndpointHitDto saveHit(EndpointHitDto dto) {
-        return EndpointHitMapper.maptoEndpointHitDto(repository.save(EndpointHitMapper.mapToEndpointHit(dto)));
+        EndpointHitDto hit = EndpointHitMapper.maptoEndpointHitDto(repository.save(EndpointHitMapper.mapToEndpointHit(dto)));
+        log.info("POST /hit -> returning from db {}", hit);
+        return hit;
     }
 
+    @Transactional(readOnly = true)
     public List<ViewStats> getViewStats(LocalDateTime start, LocalDateTime end, String[] uris, Boolean unique) {
         List<ViewStats> viewStatsList = new ArrayList<>();
         if (uris == null) {
@@ -41,6 +48,7 @@ public class MainService {
             }
         }
         viewStatsList.sort(Comparator.comparing(ViewStats::getHits).reversed());
+        log.info("GET /stats -> returning from db {}", viewStatsList);
         return viewStatsList;
     }
 }
