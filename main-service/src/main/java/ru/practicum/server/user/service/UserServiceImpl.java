@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.server.exception.NotFoundException;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.model.dto.UserDto;
 import ru.practicum.server.user.model.dto.UserMapper;
@@ -42,6 +43,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void delete(long userId) {
+        userRepository.findById(userId).orElseThrow(NotFoundException::new);
         userRepository.deleteById(userId);
         log.info("DELETE /admin/users/{} -> deleted from db", userId);
     }

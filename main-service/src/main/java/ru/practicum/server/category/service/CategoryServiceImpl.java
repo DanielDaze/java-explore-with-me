@@ -8,6 +8,9 @@ import ru.practicum.server.category.model.Category;
 import ru.practicum.server.category.model.dto.CategoryDto;
 import ru.practicum.server.category.model.dto.CategoryMapper;
 import ru.practicum.server.category.repository.CategoryRepository;
+import ru.practicum.server.exception.NotFoundException;
+
+import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void delete(long catId) {
+        categoryRepository.findById(catId).orElseThrow(NotFoundException::new);
         categoryRepository.deleteById(catId);
         log.info("DELETE /admin/categories/{} -> deleted from db", catId);
     }
@@ -35,7 +39,22 @@ public class CategoryServiceImpl implements CategoryService {
     public Category patch(long catId, CategoryDto catDto) {
         Category categoryToSave = CategoryMapper.mapToCategory(catDto);
         categoryToSave.setId(catId);
-        Category category = categoryRepository.save(categoryToSave);
-        log.info("PATCH /admin/categories/{} -> {}", catId, category);
-        return category;    }
+        categoryRepository.findById(catId).orElseThrow(NotFoundException::new);
+        Category saved = categoryRepository.save(categoryToSave);
+        log.info("PATCH /admin/categories/{} -> {}", catId, saved);
+        return saved;
+    }
+
+    @Override
+    public Collection<Category> getAll(int from, int size) {
+        log.info("GET /categories -> returning all entries from db");
+        return categoryRepository.findByParameters(from, size);
+    }
+
+    @Override
+    public Category get(long catId) {
+        Category category = categoryRepository.findById(catId).orElseThrow(NotFoundException::new);
+        log.info("GET /categories/{} -> returning from db {}", catId, category);
+        return category;
+    }
 }
