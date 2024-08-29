@@ -1,6 +1,12 @@
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
-    email varchar(40),
+    email varchar(40) UNIQUE,
     name varchar(20),
     CONSTRAINT pk_user PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+    id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
+    name varchar(30) UNIQUE,
+    CONSTRAINT pk_category PRIMARY KEY (id)
 );
