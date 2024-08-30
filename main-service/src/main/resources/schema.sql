@@ -31,3 +31,12 @@ CREATE TABLE IF NOT EXISTS events (
     views INTEGER,
     CONSTRAINT pk_event PRIMARY KEY (id)
 );
+
+CREATE TABLE IF NOT EXISTS requests(
+    id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
+    created TIMESTAMP WITHOUT TIME ZONE,
+    event_id BIGINT REFERENCES events (id),
+    requester_id BIGINT REFERENCES users (id),
+    status varchar(20),
+    CONSTRAINT pk_request PRIMARY KEY (id)
+);
