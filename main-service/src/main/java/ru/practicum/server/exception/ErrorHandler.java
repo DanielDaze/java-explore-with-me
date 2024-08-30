@@ -24,4 +24,11 @@ public class ErrorHandler {
         log.error("Пользователь пытался создать конфликтующий объект");
         return new ErrorBody(e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorBody handleInvalidDateException(final InvalidDataException e) {
+        log.error("Пользователь некорректно ввел даты проведения события");
+        return new ErrorBody(e.getMessage());
+    }
 }
