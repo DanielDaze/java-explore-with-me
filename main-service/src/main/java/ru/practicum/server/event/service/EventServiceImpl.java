@@ -1,11 +1,15 @@
 package ru.practicum.server.event.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.client.StatsClient;
+import ru.practicum.models.dto.EndpointHitDto;
 import ru.practicum.server.category.model.Category;
 import ru.practicum.server.category.repository.CategoryRepository;
 import ru.practicum.server.event.model.Event;
@@ -13,14 +17,19 @@ import ru.practicum.server.event.model.EventState;
 import ru.practicum.server.event.model.dto.EventDto;
 import ru.practicum.server.event.model.dto.EventDtoAdminPatch;
 import ru.practicum.server.event.model.dto.EventDtoPatch;
+import ru.practicum.server.event.model.dto.EventSearch;
 import ru.practicum.server.event.model.dto.mapper.EventMapper;
 import ru.practicum.server.event.repository.EventRepository;
 import ru.practicum.server.exception.InvalidDataException;
 import ru.practicum.server.exception.NotFoundException;
+import ru.practicum.server.request.model.Request;
+import ru.practicum.server.request.model.RequestStatus;
+import ru.practicum.server.request.repository.RequestRepository;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,9 +37,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class EventServiceImpl implements EventService {
+    private final StatsClient statsClient;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
 
     @Override
     @Transactional
@@ -129,6 +140,52 @@ public class EventServiceImpl implements EventService {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Event> events = eventRepository.adminGet(users, states, categories, rangeStart, rangeEnd, pageable);
         log.info("GET /admin/events -> returning from db");
+        return events;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Event publicGet(long eventId, HttpServletRequest servletRequest) {
+        statsClient.postHit(new EndpointHitDto("ewm-main-service", servletRequest.getRequestURI(), servletRequest.getRemoteAddr(), LocalDateTime.now()));
+        Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
+        if (event.getState() != EventState.PUBLISHED) {
+            throw new NotFoundException("Событие с таким id не найдено!");
+        }
+        log.info("/GET /events/{} -> returning from db {}", eventId, event);
+        return event;
+    }
+
+    @Override
+    @Transactional
+    public Collection<Event> publicGetSorted(String text, Long[] categories, Boolean paid, LocalDateTime rangeStart,
+                                             LocalDateTime rangeEnd, Boolean onlyAvailable, EventSearch sort,
+                                             int from, int size, HttpServletRequest servletRequest) {
+        statsClient.postHit(new EndpointHitDto("ewm-main-service", servletRequest.getRequestURI(), servletRequest.getRemoteAddr(), LocalDateTime.now()));
+        String sortBy;
+        switch (sort) {
+            case EVENT_DATE -> sortBy = "eventDate";
+            case VIEWS -> sortBy = "views";
+            default -> sortBy = "id";
+        }
+        if (rangeStart == null) {
+            rangeStart = LocalDateTime.now();
+        }
+        if (rangeEnd == null) {
+            rangeEnd = LocalDateTime.now().plusYears(10);
+        }
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by(sortBy));
+        List<Event> events = eventRepository.getEventsFiltered(text, categories, paid, rangeStart, rangeEnd, pageable);
+        if (onlyAvailable) {
+            List<Event> availableEvents = new ArrayList<>();
+            for (Event event : events) {
+                List<Request> confirmedRequests = requestRepository.findAllByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED);
+                if (confirmedRequests.size() == event.getParticipantLimit()) {
+                    availableEvents.add(event);
+                }
+            }
+            return availableEvents;
+        }
+        log.info("GET /events -> returning from db");
         return events;
     }
 }

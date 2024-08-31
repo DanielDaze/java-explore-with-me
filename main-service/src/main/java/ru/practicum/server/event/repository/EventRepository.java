@@ -21,4 +21,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                     "and e.eventDate between ?4 and ?5")
     List<Event> adminGet(Long[] users, EventState[] states, Long[] categories, LocalDateTime rangeStart,
                          LocalDateTime rangeEnd, Pageable pageable);
+
+    @Query("select e from Event as e " +
+            "where (lower(e.annotation) LIKE lower(concat('%',:text,'%')) " +
+            "OR lower(e.description) LIKE lower(CONCAT('%',:text,'%')) OR :text is null) " +
+            "and e.category.id in (:categories) " +
+            "AND e.paid = :paid " +
+            "AND e.eventDate > :rangeStart " +
+            "AND e.eventDate < :rangeEnd")
+    List<Event> getEventsFiltered(String text, Long[] categories, Boolean paid,
+                                LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
 }

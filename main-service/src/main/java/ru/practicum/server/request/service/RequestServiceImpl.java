@@ -100,10 +100,10 @@ public class RequestServiceImpl implements RequestService {
                     requests = requests.stream().peek(request -> request.setStatus(RequestStatus.CONFIRMED)).toList();
                     for (Request request : requests) {
                         if (confirmedRequests.size() == request.getEvent().getParticipantLimit()) {
-                            request.setStatus(RequestStatus.REJECTED);
                             throw new InvalidDataException("Превышен лимит участников для этого события!");
                         } else {
                             request.setStatus(RequestStatus.CONFIRMED);
+                            confirmedRequests.add(request);
                         }
                     }
                 } else if (dto.getStatus().equals("REJECTED")) {
