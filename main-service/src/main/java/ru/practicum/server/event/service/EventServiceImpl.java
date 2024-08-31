@@ -2,6 +2,8 @@ package ru.practicum.server.event.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.server.category.model.Category;
@@ -9,8 +11,9 @@ import ru.practicum.server.category.repository.CategoryRepository;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.event.model.EventState;
 import ru.practicum.server.event.model.dto.EventDto;
+import ru.practicum.server.event.model.dto.EventDtoAdminPatch;
 import ru.practicum.server.event.model.dto.EventDtoPatch;
-import ru.practicum.server.event.model.dto.EventMapper;
+import ru.practicum.server.event.model.dto.mapper.EventMapper;
 import ru.practicum.server.event.repository.EventRepository;
 import ru.practicum.server.exception.InvalidDataException;
 import ru.practicum.server.exception.NotFoundException;
@@ -70,7 +73,8 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public Collection<Event> getAll(long userId, int from, int size) {
         userRepository.findById(userId).orElseThrow(NotFoundException::new);
-        List<Event> events = eventRepository.findByParameters(userId, from, size);
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Event> events = eventRepository.findByInitiatorId(userId, pageable);
         log.info("GET /users/{}/events ->", userId);
         return events;
     }
@@ -92,5 +96,38 @@ public class EventServiceImpl implements EventService {
         Event saved = eventRepository.save(EventMapper.updateEvent(old, eventDto));
         log.info("PATCH /users/{}/events/{} -> returning from db {}", userId, eventId, saved);
         return saved;
+    }
+
+    @Override
+    @Transactional
+    public Event adminUpdate(long eventId, EventDtoAdminPatch eventDto) {
+        Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
+        if (event.getEventDate().minusHours(1L).isBefore(LocalDateTime.now())) {
+            throw new InvalidDataException("Ваше событие начинается раньше, чем через час!");
+        }
+        if (event.getState() != EventState.PENDING) {
+            throw new InvalidDataException("Это событие уже нельзя обновить!");
+        }
+
+        Event updated = EventMapper.updateEvent(event, eventDto);
+        if (eventDto.getStateAction().equals("PUBLISH_EVENT")) {
+            updated.setState(EventState.PUBLISHED);
+        } else if (eventDto.getStateAction().equals("CANCEL_EVENT")) {
+            updated.setState(EventState.CANCELED);
+        }
+        Event saved = eventRepository.save(updated);
+        log.info("PATCH /admin/events/{} -> returning from db {}", eventId, saved);
+        return saved;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Collection<Event> adminGet(Long[] users, EventState[] states, Long[] categories,
+                                      LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                      int from, int size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Event> events = eventRepository.adminGet(users, states, categories, rangeStart, rangeEnd, pageable);
+        log.info("GET /admin/events -> returning from db");
+        return events;
     }
 }

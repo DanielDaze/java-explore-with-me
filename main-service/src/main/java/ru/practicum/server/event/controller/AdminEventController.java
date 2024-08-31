@@ -1,0 +1,35 @@
+package ru.practicum.server.event.controller;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.server.event.model.Event;
+import ru.practicum.server.event.model.EventState;
+import ru.practicum.server.event.model.dto.EventDtoAdminPatch;
+import ru.practicum.server.event.service.EventService;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+
+@RestController
+@RequiredArgsConstructor
+@Slf4j
+public class AdminEventController {
+    private final EventService eventService;
+
+    @PatchMapping("/admin/events/{eventId}")
+    public Event patch(@PathVariable long eventId, @RequestBody EventDtoAdminPatch eventDto) {
+        log.info("PATCH /admin/events/{} <- {}", eventId, eventDto);
+        return eventService.adminUpdate(eventId, eventDto);
+    }
+
+    @GetMapping("/admin/events")
+    public Collection<Event> get(@RequestParam Long[] users, @RequestParam EventState[] states, @RequestParam Long[] categories,
+                                 @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                 @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                 @RequestParam(defaultValue = "0") int from, @RequestParam(defaultValue = "10") int size) {
+        log.info("GET /admin/events <-");
+        return eventService.adminGet(users, states, categories, rangeStart, rangeEnd, from, size);
+    }
+}
