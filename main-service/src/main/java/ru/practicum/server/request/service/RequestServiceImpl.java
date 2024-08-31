@@ -11,6 +11,7 @@ import ru.practicum.server.exception.InvalidDataException;
 import ru.practicum.server.exception.NotFoundException;
 import ru.practicum.server.request.model.Request;
 import ru.practicum.server.request.model.RequestStatus;
+import ru.practicum.server.request.model.dto.RequestUpdateDto;
 import ru.practicum.server.request.repository.RequestRepository;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
@@ -55,7 +56,7 @@ public class RequestServiceImpl implements RequestService {
             throw new InvalidDataException("Превышен лимит заявок на это событие!");
         }
         if (!request.getEvent().getRequestModeration()) {
-            request.setStatus(RequestStatus.ACCEPTED);
+            request.setStatus(RequestStatus.CONFIRMED);
         }
     }
 
@@ -76,5 +77,44 @@ public class RequestServiceImpl implements RequestService {
         Request saved = requestRepository.save(request);
         log.info("PATCH /users/{}/requests/{}/cancel -> returning from db {}", userId, requestId, saved);
         return saved;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Collection<Request> getRequestsForEvent(long userId, long eventId) {
+        eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
+        List<Request> requests = requestRepository.findAllByEventId(eventId);
+        log.info("GET /users/{}/events/{}/requests -> returning form db {}", userId, eventId, requests);
+        return requests;
+    }
+
+    @Override
+    @Transactional
+    public Collection<Request> confirmRequests(long userId, long eventId, RequestUpdateDto dto) {
+        List<Request> confirmedRequests = requestRepository.findAllByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+        List<Request> requests = requestRepository.findAllById(dto.getRequestIds());
+        if (!requests.isEmpty()) {
+            requests = requests.stream().filter(request -> request.getStatus() == RequestStatus.PENDING).toList();
+            if (!requests.isEmpty()) {
+                if (dto.getStatus().equals("CONFIRMED")) {
+                    requests = requests.stream().peek(request -> request.setStatus(RequestStatus.CONFIRMED)).toList();
+                    for (Request request : requests) {
+                        if (confirmedRequests.size() == request.getEvent().getParticipantLimit()) {
+                            request.setStatus(RequestStatus.REJECTED);
+                            throw new InvalidDataException("Превышен лимит участников для этого события!");
+                        } else {
+                            request.setStatus(RequestStatus.CONFIRMED);
+                        }
+                    }
+                } else if (dto.getStatus().equals("REJECTED")) {
+                    requests = requests.stream().peek(request -> request.setStatus(RequestStatus.REJECTED)).toList();
+                }
+                List<Request> saved = requestRepository.saveAll(requests);
+                log.info("PATCH /users/{}/events/{}/requests -> returning from db {}", userId, eventId, requests);
+                return saved;
+            }
+        }
+        log.info("PATCH /users/{}/events/{}/requests -> returning from db {}", userId, eventId, requests);
+        return List.of();
     }
 }

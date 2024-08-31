@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.server.request.model.Request;
+import ru.practicum.server.request.model.dto.RequestUpdateDto;
 import ru.practicum.server.request.service.RequestService;
 
 import java.util.Collection;
@@ -30,5 +31,18 @@ public class RequestController {
     public Request cancel(@PathVariable long userId, @PathVariable long requestId) {
         log.info("PATCH /users/{}/requests/{}/cancel", userId, requestId);
         return requestService.cancel(userId, requestId);
+    }
+
+    @GetMapping("/users/{userId}/events/{eventId}/requests")
+    public Collection<Request> getRequestsForEvent(@PathVariable long userId, @PathVariable long eventId) {
+        log.info("GET /users/{}/events/{}/requests <-", userId, eventId);
+        return requestService.getRequestsForEvent(userId, eventId);
+    }
+
+    @PatchMapping("/users/{userId}/events/{eventId}/requests")
+    public Collection<Request> confirmRequests(@PathVariable long userId, @PathVariable long eventId,
+                                               @RequestBody RequestUpdateDto dto) {
+        log.info("PATCH /users/{}/events/{}/requests <-", userId, eventId);
+        return requestService.confirmRequests(userId, eventId, dto);
     }
 }
