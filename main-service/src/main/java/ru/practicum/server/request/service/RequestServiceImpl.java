@@ -91,6 +91,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public Collection<Request> confirmRequests(long userId, long eventId, RequestUpdateDto dto) {
+        Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
         List<Request> confirmedRequests = requestRepository.findAllByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
         List<Request> requests = requestRepository.findAllById(dto.getRequestIds());
         if (!requests.isEmpty()) {
@@ -104,6 +105,7 @@ public class RequestServiceImpl implements RequestService {
                         } else {
                             request.setStatus(RequestStatus.CONFIRMED);
                             confirmedRequests.add(request);
+                            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
                         }
                     }
                 } else if (dto.getStatus().equals("REJECTED")) {
@@ -114,6 +116,7 @@ public class RequestServiceImpl implements RequestService {
                 return saved;
             }
         }
+        eventRepository.save(event);
         log.info("PATCH /users/{}/events/{}/requests -> returning from db {}", userId, eventId, requests);
         return List.of();
     }
