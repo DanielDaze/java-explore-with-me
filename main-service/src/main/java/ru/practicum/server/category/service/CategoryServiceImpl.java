@@ -2,6 +2,8 @@ package ru.practicum.server.category.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.server.category.model.Category;
@@ -11,6 +13,7 @@ import ru.practicum.server.category.repository.CategoryRepository;
 import ru.practicum.server.exception.NotFoundException;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,8 +50,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Collection<Category> getAll(int from, int size) {
-        log.info("GET /categories -> returning all entries from db");
-        return categoryRepository.findByParameters(from, size);
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Category> categories = categoryRepository.findAll(pageable).getContent();
+        log.info("GET /categories -> returning from db");
+        return categories;
     }
 
     @Override

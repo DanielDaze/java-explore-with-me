@@ -18,7 +18,6 @@ import ru.practicum.server.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

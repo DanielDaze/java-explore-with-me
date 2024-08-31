@@ -2,6 +2,8 @@ package ru.practicum.server.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.server.exception.NotFoundException;
@@ -34,7 +36,8 @@ public class UserServiceImpl implements UserService {
         if (ids != null) {
             users = userRepository.findAllById(List.of(ids));
         } else {
-            users = userRepository.findByParameters(from, size);
+            Pageable pageable = PageRequest.of(from / size, size);
+            users = userRepository.findAll(pageable).getContent();
         }
         log.info("GET /admin/users -> returning from db {}", users);
         return users;

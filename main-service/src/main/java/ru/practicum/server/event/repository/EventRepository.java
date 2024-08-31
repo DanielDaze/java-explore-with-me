@@ -12,7 +12,6 @@ import java.util.List;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
-    // TODO добавить пагинацию в подобные запросы
     List<Event> findByInitiatorId(long userId, Pageable pageable);
 
     @Query(value = "select e from Event as e " +

@@ -112,6 +112,7 @@ public class EventServiceImpl implements EventService {
         Event updated = EventMapper.updateEvent(event, eventDto);
         if (eventDto.getStateAction().equals("PUBLISH_EVENT")) {
             updated.setState(EventState.PUBLISHED);
+            updated.setPublishedOn(LocalDateTime.now());
         } else if (eventDto.getStateAction().equals("CANCEL_EVENT")) {
             updated.setState(EventState.CANCELED);
         }
