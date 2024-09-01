@@ -75,6 +75,9 @@ public class RequestServiceImpl implements RequestService {
         Request request = requestRepository.findById(requestId).orElseThrow(NotFoundException::new);
         request.setStatus(RequestStatus.CANCELED);
         Request saved = requestRepository.save(request);
+        Event event = request.getEvent();
+        event.setConfirmedRequests(event.getConfirmedRequests() - 1);
+        eventRepository.save(event);
         log.info("PATCH /users/{}/requests/{}/cancel -> returning from db {}", userId, requestId, saved);
         return saved;
     }

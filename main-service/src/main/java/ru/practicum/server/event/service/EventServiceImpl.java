@@ -76,6 +76,8 @@ public class EventServiceImpl implements EventService {
     public Event get(long userId, long eventId) {
         userRepository.findById(userId).orElseThrow(NotFoundException::new);
         Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
+        event.setViews(event.getViews() + 1);
+        eventRepository.save(event);
         log.info("GET /users/{}/events/{} -> returning from db {}", userId, eventId, event);
         return event;
     }
@@ -151,6 +153,8 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != EventState.PUBLISHED) {
             throw new NotFoundException("Событие с таким id не найдено!");
         }
+        event.setViews(event.getViews() + 1);
+        eventRepository.save(event);
         log.info("/GET /events/{} -> returning from db {}", eventId, event);
         return event;
     }
