@@ -32,11 +32,23 @@ CREATE TABLE IF NOT EXISTS events (
     CONSTRAINT pk_event PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS requests(
+CREATE TABLE IF NOT EXISTS requests (
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
     created TIMESTAMP WITHOUT TIME ZONE,
-    event_id BIGINT REFERENCES events (id),
-    requester_id BIGINT REFERENCES users (id),
+    event_id BIGINT REFERENCES events (id) ON DELETE CASCADE,
+    requester_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
     status varchar(20),
     CONSTRAINT pk_request PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS compilations (
+    id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
+    pinned BOOLEAN,
+    title varchar(30),
+    CONSTRAINT pk_compilation PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS compilation_events (
+    compilation_id BIGINT REFERENCES compilations (id) ON DELETE CASCADE,
+    event_id BIGINT REFERENCES events (id) ON DELETE SET NULL
 );

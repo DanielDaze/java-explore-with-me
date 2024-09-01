@@ -1,0 +1,77 @@
+package ru.practicum.server.compilation.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.server.compilation.model.Compilation;
+import ru.practicum.server.compilation.model.dto.CompilationDto;
+import ru.practicum.server.compilation.model.dto.mapper.CompilationMapper;
+import ru.practicum.server.compilation.repository.CompilationRepository;
+import ru.practicum.server.event.model.Event;
+import ru.practicum.server.event.repository.EventRepository;
+import ru.practicum.server.exception.NotFoundException;
+
+import java.util.Collection;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class CompilationServiceImpl implements CompilationService {
+    private final CompilationRepository compilationRepository;
+    private final EventRepository eventRepository;
+
+    @Override
+    @Transactional
+    public Compilation create(CompilationDto compDto) {
+        Compilation compilation = CompilationMapper.mapToCompilation(compDto);
+        return validateAndSave(compDto, compilation);
+    }
+
+    @Override
+    @Transactional
+    public void delete(long compId) {
+        compilationRepository.findById(compId).orElseThrow(NotFoundException::new);
+        compilationRepository.deleteById(compId);
+        log.info("DELETE /admin/compilations/{} -> deleted from db", compId);
+    }
+
+    @Override
+    @Transactional
+    public Compilation update(long compId, CompilationDto compDto) {
+        compilationRepository.findById(compId).orElseThrow(NotFoundException::new);
+        Compilation compilation = CompilationMapper.mapToCompilation(compDto);
+        compilation.setId(compId);
+        return validateAndSave(compDto, compilation);
+    }
+
+    private Compilation validateAndSave(CompilationDto compDto, Compilation compilation) {
+        List<Event> events = eventRepository.findAllById(compDto.getEvents());
+        if (!events.isEmpty()) {
+            compilation.setEvents(events);
+            Compilation saved = compilationRepository.save(compilation);
+            log.info("POST /admin/compilations -> returning from db {}", saved);
+            return saved;
+        } else {
+            throw new NotFoundException("Событий с такими id найдено не было");
+        }
+    }
+
+    @Override
+    public Compilation get(long compId) {
+        Compilation compilation = compilationRepository.findById(compId).orElseThrow(NotFoundException::new);
+        log.info("GET /compilations/{} -> returning from db {}", compId, compilation);
+        return compilation;
+    }
+
+    @Override
+    public Collection<Compilation> getFiltered(boolean pinned, int from, int size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageable);
+        log.info("GET /compilations -> returning from db");
+        return compilations;
+    }
+}

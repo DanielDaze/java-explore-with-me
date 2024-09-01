@@ -37,6 +37,8 @@ public class RequestServiceImpl implements RequestService {
         Request request = new Request(null, LocalDateTime.now(), event, requester, RequestStatus.PENDING);
         validateRequest(request);
         Request saved = requestRepository.save(request);
+        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+        eventRepository.save(event);
         log.info("POST /users/{}/requests -> returning from db {}", userId, saved);
         return saved;
     }
@@ -108,13 +110,14 @@ public class RequestServiceImpl implements RequestService {
                         } else {
                             request.setStatus(RequestStatus.CONFIRMED);
                             confirmedRequests.add(request);
-                            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                            event.setConfirmedRequests(event.getConfirmedRequests());
                         }
                     }
                 } else if (dto.getStatus().equals("REJECTED")) {
                     requests = requests.stream().peek(request -> request.setStatus(RequestStatus.REJECTED)).toList();
                 }
                 List<Request> saved = requestRepository.saveAll(requests);
+                eventRepository.save(event);
                 log.info("PATCH /users/{}/events/{}/requests -> returning from db {}", userId, eventId, requests);
                 return saved;
             }
