@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS events (
     title VARCHAR(30),
     annotation VARCHAR(60),
     category_id BIGINT REFERENCES categories (id),
-    description VARCHAR(100),
+    description VARCHAR(1000),
     event_date TIMESTAMP WITHOUT TIME ZONE,
     lat FLOAT,
     lon FLOAT,

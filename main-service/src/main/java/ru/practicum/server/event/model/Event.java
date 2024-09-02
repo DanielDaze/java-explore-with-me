@@ -1,5 +1,6 @@
 package ru.practicum.server.event.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import ru.practicum.server.category.model.Category;
@@ -31,10 +32,11 @@ public class Event {
     @ToString.Exclude
     private Category category;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 1000)
     private String description;
 
     @Column(name = "event_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
     @Embedded

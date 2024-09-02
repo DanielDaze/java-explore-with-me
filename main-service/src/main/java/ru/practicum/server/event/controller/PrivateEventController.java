@@ -3,6 +3,7 @@ package ru.practicum.server.event.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.event.model.dto.EventDto;
@@ -18,6 +19,7 @@ public class PrivateEventController {
     private final EventService eventService;
 
     @PostMapping("/users/{userId}/events")
+    @ResponseStatus(HttpStatus.CREATED)
     public Event create(@PathVariable long userId, @RequestBody @Valid EventDto eventDto) {
         log.info("POST /users/{}/events <- {}", userId, eventDto);
         return eventService.create(userId, eventDto);
