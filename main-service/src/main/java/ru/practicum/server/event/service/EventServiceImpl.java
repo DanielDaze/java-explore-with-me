@@ -66,8 +66,10 @@ public class EventServiceImpl implements EventService {
     }
 
     private void checkCorrectEventDate(LocalDateTime date) {
-        if (date.minusHours(2L).isBefore(LocalDateTime.now())) {
-            throw new InvalidDataException("Ваше событие начинается раньше, чем через два часа!");
+        if (date != null) {
+            if (date.minusHours(2L).isBefore(LocalDateTime.now())) {
+                throw new InvalidDataException("Ваше событие начинается раньше, чем через два часа!");
+            }
         }
     }
 
@@ -105,7 +107,10 @@ public class EventServiceImpl implements EventService {
             Category category = categoryRepository.findById(eventDto.getCategory()).orElseThrow(NotFoundException::new);
             old.setCategory(category);
         }
-
+        Event event = EventMapper.updateEvent(old, eventDto);
+        if (eventDto.getStateAction().equals("CANCEL_REVIEW")) {
+            event.setState(EventState.CANCELED);
+        }
         Event saved = eventRepository.save(EventMapper.updateEvent(old, eventDto));
         log.info("PATCH /users/{}/events/{} -> returning from db {}", userId, eventId, saved);
         return saved;

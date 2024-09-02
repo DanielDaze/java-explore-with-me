@@ -25,19 +25,19 @@ public class RequestController {
     }
 
     @GetMapping("/users/{userId}/requests")
-    public Collection<Request> getAll(@PathVariable long userId) {
+    public Collection<RequestDto> getAll(@PathVariable long userId) {
         log.info("GET /users/{}/requests <-", userId);
         return requestService.getAll(userId);
     }
 
     @PatchMapping("/users/{userId}/requests/{requestId}/cancel")
-    public Request cancel(@PathVariable long userId, @PathVariable long requestId) {
+    public RequestDto cancel(@PathVariable long userId, @PathVariable long requestId) {
         log.info("PATCH /users/{}/requests/{}/cancel", userId, requestId);
         return requestService.cancel(userId, requestId);
     }
 
     @GetMapping("/users/{userId}/events/{eventId}/requests")
-    public Collection<Request> getRequestsForEvent(@PathVariable long userId, @PathVariable long eventId) {
+    public Collection<RequestDto> getRequestsForEvent(@PathVariable long userId, @PathVariable long eventId) {
         log.info("GET /users/{}/events/{}/requests <-", userId, eventId);
         return requestService.getRequestsForEvent(userId, eventId);
     }

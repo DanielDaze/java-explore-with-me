@@ -8,8 +8,8 @@ import java.util.Collection;
 
 public interface RequestService {
     RequestDto create(long userId, long eventId);
-    Collection<Request> getAll(long userId);
-    Request cancel(long userId, long requestId);
-    Collection<Request> getRequestsForEvent(long userId, long eventId);
+    Collection<RequestDto> getAll(long userId);
+    RequestDto cancel(long userId, long requestId);
+    Collection<RequestDto> getRequestsForEvent(long userId, long eventId);
     Collection<Request> confirmRequests(long userId, long eventId, RequestUpdateDto dto);
 }

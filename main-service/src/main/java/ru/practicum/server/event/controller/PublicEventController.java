@@ -15,19 +15,19 @@ import ru.practicum.server.event.service.EventService;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
-@RestController("/events")
+@RestController
 @RequiredArgsConstructor
 @Slf4j
 public class PublicEventController {
     private final EventService eventService;
 
-    @GetMapping("/{eventId} <-")
+    @GetMapping("/events/{eventId}")
     public Event get(@PathVariable long eventId, HttpServletRequest servletRequest) {
-        log.info("GET /events/{}", eventId);
+        log.info("GET /events/{} <-", eventId);
         return eventService.publicGet(eventId, servletRequest);
     }
 
-    @GetMapping
+    @GetMapping("/events")
     public Collection<Event> getSorted(@RequestParam String text, @RequestParam Long[] categories, @RequestParam Boolean paid,
                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,

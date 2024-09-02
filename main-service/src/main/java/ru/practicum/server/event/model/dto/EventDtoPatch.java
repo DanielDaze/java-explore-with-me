@@ -21,4 +21,5 @@ public class EventDtoPatch {
     private Boolean paid;
     private Integer participantLimit;
     private Boolean requestModeration;
+    private String stateAction;
 }

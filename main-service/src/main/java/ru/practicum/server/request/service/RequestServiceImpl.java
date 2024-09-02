@@ -67,15 +67,16 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional(readOnly = true)
-    public Collection<Request> getAll(long userId) {
+    public Collection<RequestDto> getAll(long userId) {
         List<Request> requests = requestRepository.findAllByRequesterId(userId);
+        List<RequestDto> dtos = requests.stream().map(RequestMapper::mapToRequestDto).toList();
         log.info("GET /users/{}/requests -> returning from db", userId);
-        return requests;
+        return dtos;
     }
 
     @Override
     @Transactional
-    public Request cancel(long userId, long requestId) {
+    public RequestDto cancel(long userId, long requestId) {
         userRepository.findById(userId).orElseThrow(NotFoundException::new);
         Request request = requestRepository.findById(requestId).orElseThrow(NotFoundException::new);
         request.setStatus(RequestStatus.CANCELED);
@@ -84,16 +85,18 @@ public class RequestServiceImpl implements RequestService {
         event.setConfirmedRequests(event.getConfirmedRequests() - 1);
         eventRepository.save(event);
         log.info("PATCH /users/{}/requests/{}/cancel -> returning from db {}", userId, requestId, saved);
-        return saved;
+        RequestDto dto = RequestMapper.mapToRequestDto(saved);
+        return dto;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Collection<Request> getRequestsForEvent(long userId, long eventId) {
+    public Collection<RequestDto> getRequestsForEvent(long userId, long eventId) {
         eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
         List<Request> requests = requestRepository.findAllByEventId(eventId);
         log.info("GET /users/{}/events/{}/requests -> returning form db {}", userId, eventId, requests);
-        return requests;
+        List<RequestDto> dtos = requests.stream().map(RequestMapper::mapToRequestDto).toList();
+        return dtos;
     }
 
     @Override

@@ -15,9 +15,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByInitiatorId(long userId, Pageable pageable);
 
     @Query(value = "select e from Event as e " +
-                    "where e.id in ?1 " +
+                    "where e.initiator.id in ?1 " +
                     "and e.state in ?2 " +
-                    "and e.category in ?3 " +
+                    "and e.category.id in ?3 " +
                     "and e.eventDate between ?4 and ?5")
     List<Event> adminGet(Long[] users, EventState[] states, Long[] categories, LocalDateTime rangeStart,
                          LocalDateTime rangeEnd, Pageable pageable);
