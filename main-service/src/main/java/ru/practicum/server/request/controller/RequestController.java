@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.server.request.model.Request;
+import ru.practicum.server.request.model.dto.RequestDto;
 import ru.practicum.server.request.model.dto.RequestUpdateDto;
 import ru.practicum.server.request.service.RequestService;
 
@@ -18,7 +19,7 @@ public class RequestController {
 
     @PostMapping("/users/{userId}/requests")
     @ResponseStatus(HttpStatus.CREATED)
-    public Request create(@PathVariable long userId, @RequestParam long eventId) {
+    public RequestDto create(@PathVariable long userId, @RequestParam long eventId) {
         log.info("POST /users/{}/requests <- with eventId={}", userId, eventId);
         return requestService.create(userId, eventId);
     }

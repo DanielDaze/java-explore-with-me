@@ -11,7 +11,9 @@ import ru.practicum.server.exception.InvalidDataException;
 import ru.practicum.server.exception.NotFoundException;
 import ru.practicum.server.request.model.Request;
 import ru.practicum.server.request.model.RequestStatus;
+import ru.practicum.server.request.model.dto.RequestDto;
 import ru.practicum.server.request.model.dto.RequestUpdateDto;
+import ru.practicum.server.request.model.dto.mapper.RequestMapper;
 import ru.practicum.server.request.repository.RequestRepository;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
@@ -30,7 +32,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    public Request create(long userId, long eventId) {
+    public RequestDto create(long userId, long eventId) {
         User requester = userRepository.findById(userId).orElseThrow(NotFoundException::new);
         Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
 
@@ -39,8 +41,9 @@ public class RequestServiceImpl implements RequestService {
         Request saved = requestRepository.save(request);
         event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         eventRepository.save(event);
-        log.info("POST /users/{}/requests -> returning from db {}", userId, saved);
-        return saved;
+        RequestDto dto = RequestMapper.mapToRequestDto(saved);
+        log.info("POST /users/{}/requests -> returning from db {}", userId, dto);
+        return dto;
     }
 
     private void validateRequest(Request request) {
