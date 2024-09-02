@@ -24,7 +24,7 @@ public class Event {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "annotation")
+    @Column(name = "annotation", length = 1000)
     private String annotation;
 
     @ManyToOne
