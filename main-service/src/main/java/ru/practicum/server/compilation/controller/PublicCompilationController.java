@@ -24,7 +24,7 @@ public class PublicCompilationController {
     }
 
     @GetMapping("/compilations")
-    public Collection<Compilation> getFiltered(@RequestParam(defaultValue = "false") boolean pinned, @RequestParam int from, @RequestParam int size) {
+    public Collection<Compilation> getFiltered(@RequestParam(defaultValue = "false") boolean pinned, @RequestParam(defaultValue = "0") int from, @RequestParam(defaultValue = "10") int size) {
         log.info("GET /compilations <-");
         return compilationService.getFiltered(pinned, from, size);
     }

@@ -28,7 +28,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorBody handleInvalidDateException(final InvalidDataException e) {
-        log.error("Пользователь некорректно ввел даты проведения события");
+        log.error(e.getMessage());
         return new ErrorBody(e.getMessage());
     }
 }

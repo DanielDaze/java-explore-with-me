@@ -29,7 +29,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public Compilation create(CompilationDto compDto) {
         Compilation compilation = CompilationMapper.mapToCompilation(compDto);
-        if (compDto.getEvents().isEmpty()) {
+        if (compDto.getEvents() == null || compDto.getEvents().isEmpty()) {
             compilation.setEvents(new ArrayList<>());
         } else {
             List<Event> events = eventRepository.findAllById(compDto.getEvents());

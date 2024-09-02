@@ -15,7 +15,6 @@ import ru.practicum.server.category.repository.CategoryRepository;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.event.model.EventState;
 import ru.practicum.server.event.model.dto.EventDto;
-import ru.practicum.server.event.model.dto.EventDtoAdminPatch;
 import ru.practicum.server.event.model.dto.EventDtoPatch;
 import ru.practicum.server.event.model.dto.EventSearch;
 import ru.practicum.server.event.model.dto.mapper.EventMapper;
@@ -102,14 +101,19 @@ public class EventServiceImpl implements EventService {
         if (old.getState() != EventState.PENDING) {
             throw new InvalidDataException("Вы уже не можете изменить это событие!");
         }
+        if (eventDto.getDescription().isBlank() || eventDto.getAnnotation().isBlank()) {
+            throw new InvalidDataException("Вы неверно ввели описание события");
+        }
         checkCorrectEventDate(eventDto.getEventDate());
         if (eventDto.getCategory() != null) {
             Category category = categoryRepository.findById(eventDto.getCategory()).orElseThrow(NotFoundException::new);
             old.setCategory(category);
         }
         Event event = EventMapper.updateEvent(old, eventDto);
-        if (eventDto.getStateAction().equals("CANCEL_REVIEW")) {
-            event.setState(EventState.CANCELED);
+        if (eventDto.getStateAction() != null) {
+            if (eventDto.getStateAction().equals("CANCEL_REVIEW")) {
+                event.setState(EventState.CANCELED);
+            }
         }
         Event saved = eventRepository.save(EventMapper.updateEvent(old, eventDto));
         log.info("PATCH /users/{}/events/{} -> returning from db {}", userId, eventId, saved);
@@ -118,7 +122,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event adminUpdate(long eventId, EventDtoAdminPatch eventDto) {
+    public Event adminUpdate(long eventId, EventDtoPatch eventDto) {
         Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
         if (event.getEventDate().minusHours(1L).isBefore(LocalDateTime.now())) {
             throw new InvalidDataException("Ваше событие начинается раньше, чем через час!");
@@ -126,16 +130,28 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != EventState.PENDING) {
             throw new InvalidDataException("Это событие уже нельзя обновить!");
         }
+        if (eventDto.getDescription() != null) {
+            if (eventDto.getDescription().isBlank()) {
+                throw new InvalidDataException("Вы неверно ввели описание события");
+            }
+        }
+        if (eventDto.getAnnotation() != null) {
+            if (eventDto.getAnnotation().isBlank()) {
+                throw new InvalidDataException("Вы неверно ввели описание события");
+            }
+        }
 
         Event updated = EventMapper.updateEvent(event, eventDto);
-        if (eventDto.getStateAction().equals("PUBLISH_EVENT")) {
-            if (event.getState() == EventState.CANCELED) {
-                throw new InvalidDataException("Это событие было отклонено!");
+        if (eventDto.getStateAction() != null) {
+            if (eventDto.getStateAction().equals("PUBLISH_EVENT")) {
+                if (event.getState() == EventState.CANCELED) {
+                    throw new InvalidDataException("Это событие было отклонено!");
+                }
+                updated.setState(EventState.PUBLISHED);
+                updated.setPublishedOn(LocalDateTime.now());
+            } else if (eventDto.getStateAction().equals("REJECT_EVENT")) {
+                updated.setState(EventState.CANCELED);
             }
-            updated.setState(EventState.PUBLISHED);
-            updated.setPublishedOn(LocalDateTime.now());
-        } else if (eventDto.getStateAction().equals("REJECT_EVENT")) {
-            updated.setState(EventState.CANCELED);
         }
         Event saved = eventRepository.save(updated);
         log.info("PATCH /admin/events/{} -> returning from db {}", eventId, saved);
@@ -148,6 +164,15 @@ public class EventServiceImpl implements EventService {
                                       LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                       int from, int size) {
         Pageable pageable = PageRequest.of(from / size, size);
+        if (states == null) {
+            states = EventState.values();
+        }
+        if (rangeStart == null) {
+            rangeStart = LocalDateTime.now();
+        }
+        if (rangeEnd == null) {
+            rangeEnd = LocalDateTime.now().plusYears(100);
+        }
         List<Event> events = eventRepository.adminGet(users, states, categories, rangeStart, rangeEnd, pageable);
         log.info("GET /admin/events -> returning from db");
         return events;

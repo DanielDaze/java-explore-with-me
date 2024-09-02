@@ -15,9 +15,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByInitiatorId(long userId, Pageable pageable);
 
     @Query(value = "select e from Event as e " +
-                    "where e.initiator.id in ?1 " +
-                    "and e.state in ?2 " +
-                    "and e.category.id in ?3 " +
+                    "where ?1 is null or e.initiator.id in ?1 " +
+                    "and ?2 is null or e.state in ?2 " +
+                    "and ?3 is null or e.category.id in ?3 " +
                     "and e.eventDate between ?4 and ?5")
     List<Event> adminGet(Long[] users, EventState[] states, Long[] categories, LocalDateTime rangeStart,
                          LocalDateTime rangeEnd, Pageable pageable);
@@ -26,9 +26,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "where (lower(e.annotation) LIKE lower(concat('%',:text,'%')) " +
             "OR lower(e.description) LIKE lower(CONCAT('%',:text,'%')) OR :text is null) " +
             "and e.category.id in (:categories) " +
-            "AND e.paid = :paid " +
-            "AND e.eventDate > :rangeStart " +
-            "AND e.eventDate < :rangeEnd")
+            "AND :paid is null or e.paid = :paid " +
+            "AND e.eventDate between :rangeStart and :rangeEnd")
     List<Event> getEventsFiltered(String text, Long[] categories, Boolean paid,
                                 LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
 }

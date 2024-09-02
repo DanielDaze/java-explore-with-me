@@ -32,13 +32,14 @@ public class PrivateEventController {
     }
 
     @GetMapping("/users/{userId}/events")
-    public Collection<Event> getAll(@PathVariable long userId, @RequestParam int from, @RequestParam int size) {
+    public Collection<Event> getAll(@PathVariable long userId, @RequestParam(defaultValue = "0") int from,
+                                    @RequestParam(defaultValue = "10") int size) {
         log.info("GET /users/{}/events <-", userId);
         return eventService.getAll(userId, from, size);
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}")
-    public Event patch(@PathVariable long userId, @PathVariable long eventId, @RequestBody EventDtoPatch eventDto) {
+    public Event patch(@PathVariable long userId, @PathVariable long eventId, @RequestBody @Valid EventDtoPatch eventDto) {
         log.info("PATCH /users/{}/events/{} <- {}", userId, eventId, eventDto);
         return eventService.update(userId, eventId, eventDto);
     }

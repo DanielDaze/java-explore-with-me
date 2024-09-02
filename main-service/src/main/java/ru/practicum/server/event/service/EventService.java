@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.event.model.EventState;
 import ru.practicum.server.event.model.dto.EventDto;
-import ru.practicum.server.event.model.dto.EventDtoAdminPatch;
 import ru.practicum.server.event.model.dto.EventDtoPatch;
 import ru.practicum.server.event.model.dto.EventSearch;
 
@@ -16,7 +15,7 @@ public interface EventService {
     Event get(long userId, long eventId);
     Collection<Event> getAll(long userId, int from, int size);
     Event update(long userId, long eventId, EventDtoPatch eventDto);
-    Event adminUpdate(long eventId, EventDtoAdminPatch eventDto);
+    Event adminUpdate(long eventId, EventDtoPatch eventDto);
     Collection<Event> adminGet(Long[] users, EventState[] states, Long[] categories, LocalDateTime rangeStart,
                                LocalDateTime rangeEnd, int from, int size);
     Event publicGet(long eventId, HttpServletRequest servletRequest);

@@ -1,25 +1,31 @@
 package ru.practicum.server.event.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Getter @Setter
 @ToString
 public class EventDtoPatch {
+    @Length(min = 3, max = 120)
     private String title;
+    @Length(min = 20, max = 2000)
     private String annotation;
     private Long category;
+    @Length(min = 20, max = 7000)
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     private Location location;
-    private Boolean paid;
-    private Integer participantLimit;
-    private Boolean requestModeration;
+    private Boolean paid = false;
+    @PositiveOrZero
+    private Integer participantLimit = 0;
+    private Boolean requestModeration = true;
     private String stateAction;
 }

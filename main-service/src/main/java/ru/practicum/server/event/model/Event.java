@@ -24,7 +24,7 @@ public class Event {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "annotation", length = 1000)
+    @Column(name = "annotation", length = 2000)
     private String annotation;
 
     @ManyToOne
@@ -32,7 +32,7 @@ public class Event {
     @ToString.Exclude
     private Category category;
 
-    @Column(name = "description", length = 1000)
+    @Column(name = "description", length = 7000)
     private String description;
 
     @Column(name = "event_date")
