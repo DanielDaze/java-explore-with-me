@@ -24,7 +24,7 @@ public class AdminCompilationController {
     @PostMapping("/admin/compilations")
     @ResponseStatus(HttpStatus.CREATED)
     public Compilation post(@RequestBody @Valid CompilationDto compDto) {
-        log.info("POST /admin/compilations <-");
+        log.info("POST /admin/compilations <- {}", compDto);
         return compilationService.create(compDto);
     }
 

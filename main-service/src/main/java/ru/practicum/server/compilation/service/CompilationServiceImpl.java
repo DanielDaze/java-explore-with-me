@@ -14,6 +14,7 @@ import ru.practicum.server.event.model.Event;
 import ru.practicum.server.event.repository.EventRepository;
 import ru.practicum.server.exception.NotFoundException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,7 +29,13 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public Compilation create(CompilationDto compDto) {
         Compilation compilation = CompilationMapper.mapToCompilation(compDto);
-        return validateAndSave(compDto, compilation);
+        if (compDto.getEvents().isEmpty()) {
+            compilation.setEvents(new ArrayList<>());
+        } else {
+            List<Event> events = eventRepository.findAllById(compDto.getEvents());
+            compilation.setEvents(events);
+        }
+        return compilationRepository.save(compilation);
     }
 
     @Override
@@ -45,19 +52,10 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.findById(compId).orElseThrow(NotFoundException::new);
         Compilation compilation = CompilationMapper.mapToCompilation(compDto);
         compilation.setId(compId);
-        return validateAndSave(compDto, compilation);
-    }
-
-    private Compilation validateAndSave(CompilationDto compDto, Compilation compilation) {
-        List<Event> events = eventRepository.findAllById(compDto.getEvents());
-        if (!events.isEmpty()) {
-            compilation.setEvents(events);
-            Compilation saved = compilationRepository.save(compilation);
-            log.info("POST /admin/compilations -> returning from db {}", saved);
-            return saved;
-        } else {
-            throw new NotFoundException("Событий с такими id найдено не было");
+        if (compDto.getEvents() != null) {
+            compilation.setEvents(eventRepository.findAllById(compDto.getEvents()));
         }
+        return compilationRepository.save(compilation);
     }
 
     @Override
