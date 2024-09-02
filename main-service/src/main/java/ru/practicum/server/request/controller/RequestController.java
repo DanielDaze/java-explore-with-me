@@ -45,7 +45,7 @@ public class RequestController {
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
     public Collection<Request> confirmRequests(@PathVariable long userId, @PathVariable long eventId,
                                                @RequestBody RequestUpdateDto dto) {
-        log.info("PATCH /users/{}/events/{}/requests <-", userId, eventId);
+        log.info("PATCH /users/{}/events/{}/requests <- {}", userId, eventId, dto);
         return requestService.confirmRequests(userId, eventId, dto);
     }
 }

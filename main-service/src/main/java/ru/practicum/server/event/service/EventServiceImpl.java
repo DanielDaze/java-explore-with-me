@@ -129,9 +129,12 @@ public class EventServiceImpl implements EventService {
 
         Event updated = EventMapper.updateEvent(event, eventDto);
         if (eventDto.getStateAction().equals("PUBLISH_EVENT")) {
+            if (event.getState() == EventState.CANCELED) {
+                throw new InvalidDataException("Это событие было отклонено!");
+            }
             updated.setState(EventState.PUBLISHED);
             updated.setPublishedOn(LocalDateTime.now());
-        } else if (eventDto.getStateAction().equals("CANCEL_EVENT")) {
+        } else if (eventDto.getStateAction().equals("REJECT_EVENT")) {
             updated.setState(EventState.CANCELED);
         }
         Event saved = eventRepository.save(updated);
