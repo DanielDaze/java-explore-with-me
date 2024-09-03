@@ -30,14 +30,14 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:6542/ewm
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
       - SPRING_DATASOURCE_USERNAME=dbuser
       - SPRING_DATASOURCE_PASSWORD=12345
   ewm-db:
     image: postgres:16.1
     container_name: ewm_db
     ports:
-      - "6542:6542"
+      - "6542:5432"
     environment:
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
