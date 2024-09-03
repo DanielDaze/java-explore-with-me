@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.server.compilation.model.Compilation;
 import ru.practicum.server.compilation.model.dto.CompilationDto;
+import ru.practicum.server.compilation.model.dto.CompilationDtoPatch;
 import ru.practicum.server.compilation.model.dto.mapper.CompilationMapper;
 import ru.practicum.server.compilation.repository.CompilationRepository;
 import ru.practicum.server.event.model.Event;
@@ -48,9 +49,9 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     @Transactional
-    public Compilation update(long compId, CompilationDto compDto) {
-        compilationRepository.findById(compId).orElseThrow(NotFoundException::new);
-        Compilation compilation = CompilationMapper.mapToCompilation(compDto);
+    public Compilation update(long compId, CompilationDtoPatch compDto) {
+        Compilation old = compilationRepository.findById(compId).orElseThrow(NotFoundException::new);
+        Compilation compilation = CompilationMapper.updateCompilation(compDto, old);
         compilation.setId(compId);
         if (compDto.getEvents() != null) {
             compilation.setEvents(eventRepository.findAllById(compDto.getEvents()));

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.server.compilation.model.Compilation;
 import ru.practicum.server.compilation.model.dto.CompilationDto;
+import ru.practicum.server.compilation.model.dto.CompilationDtoPatch;
 import ru.practicum.server.compilation.service.CompilationService;
 
 @RestController
@@ -36,7 +37,7 @@ public class AdminCompilationController {
     }
 
     @PatchMapping("/admin/compilations/{compId}")
-    public Compilation patch(@PathVariable long compId, @RequestBody @Valid CompilationDto compDto) {
+    public Compilation patch(@PathVariable long compId, @RequestBody @Valid CompilationDtoPatch compDto) {
         log.info("PATCH /admin/compilations/{}", compId);
         return compilationService.update(compId, compDto);
     }

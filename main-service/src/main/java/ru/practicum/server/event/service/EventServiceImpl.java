@@ -101,8 +101,15 @@ public class EventServiceImpl implements EventService {
         if (old.getState() != EventState.PENDING) {
             throw new InvalidDataException("Вы уже не можете изменить это событие!");
         }
-        if (eventDto.getDescription().isBlank() || eventDto.getAnnotation().isBlank()) {
-            throw new InvalidDataException("Вы неверно ввели описание события");
+        if (eventDto.getDescription() !=null) {
+            if (eventDto.getDescription().isBlank()) {
+                throw new InvalidDataException("Вы неверно ввели описание события");
+            }
+        }
+        if (eventDto.getAnnotation() != null) {
+            if (eventDto.getAnnotation().isBlank()) {
+                throw new InvalidDataException("Вы неверно ввели описание события");
+            }
         }
         checkCorrectEventDate(eventDto.getEventDate());
         if (eventDto.getCategory() != null) {

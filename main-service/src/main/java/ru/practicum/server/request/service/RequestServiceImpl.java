@@ -106,6 +106,9 @@ public class RequestServiceImpl implements RequestService {
         List<Request> confirmedRequests = requestRepository.findAllByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
         List<Request> requests = requestRepository.findAllById(dto.getRequestIds());
         if (!requests.isEmpty()) {
+            if (requests.stream().anyMatch(request -> request.getStatus() == RequestStatus.CONFIRMED)) {
+                throw new InvalidDataException("Вы уже подтвердили заявку!");
+            }
             requests = requests.stream().filter(request -> request.getStatus() == RequestStatus.PENDING).toList();
             if (!requests.isEmpty()) {
                 if (dto.getStatus().equals("CONFIRMED")) {

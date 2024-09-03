@@ -20,7 +20,7 @@ public class AdminEventController {
     private final EventService eventService;
 
     @PatchMapping("/admin/events/{eventId}")
-    public Event patch(@PathVariable long eventId, @RequestBody @Valid  EventDtoPatch eventDto) {
+    public Event patch(@PathVariable long eventId, @RequestBody @Valid EventDtoPatch eventDto) {
         log.info("PATCH /admin/events/{} <- {}", eventId, eventDto);
         return eventService.adminUpdate(eventId, eventDto);
     }

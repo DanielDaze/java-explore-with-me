@@ -1,7 +1,6 @@
 package ru.practicum.server.event.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
@@ -23,9 +22,9 @@ public class EventDtoPatch {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     private Location location;
-    private Boolean paid = false;
+    private Boolean paid;
     @PositiveOrZero
-    private Integer participantLimit = 0;
-    private Boolean requestModeration = true;
+    private Integer participantLimit;
+    private Boolean requestModeration;
     private String stateAction;
 }
