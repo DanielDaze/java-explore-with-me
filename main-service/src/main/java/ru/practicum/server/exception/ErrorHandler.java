@@ -1,6 +1,7 @@
 package ru.practicum.server.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -36,6 +37,13 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorBody handleIncorrectDateException(final IncorrectDateException e) {
         log.error("Пользователь неверно ввел даты проведения события");
+        return new ErrorBody(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorBody handleIntegrityViolationException(final DataIntegrityViolationException e) {
+        log.error("Произошел конфликт в БД");
         return new ErrorBody(e.getMessage());
     }
 }
