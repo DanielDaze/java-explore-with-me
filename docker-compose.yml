@@ -33,6 +33,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
       - SPRING_DATASOURCE_USERNAME=dbuser
       - SPRING_DATASOURCE_PASSWORD=12345
+      - EWM-STATS-SERVICE_URL=http://stats-server:9090
+    depends_on:
+      - stats-db
+      - ewm-db
   ewm-db:
     image: postgres:16.1
     container_name: ewm_db
@@ -42,3 +46,8 @@ services:
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
       - POSTGRES_DB=ewm
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10

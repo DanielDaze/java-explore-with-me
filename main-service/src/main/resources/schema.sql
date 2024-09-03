@@ -1,22 +1,22 @@
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
-    email VARCHAR(40) UNIQUE,
-    name VARCHAR(20),
+    email VARCHAR UNIQUE,
+    name VARCHAR,
     CONSTRAINT pk_user PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS categories (
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
-    name VARCHAR(30) UNIQUE,
+    name VARCHAR UNIQUE,
     CONSTRAINT pk_category PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS events (
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
-    title VARCHAR(30),
-    annotation VARCHAR(60),
+    title VARCHAR,
+    annotation VARCHAR,
     category_id BIGINT REFERENCES categories (id),
-    description VARCHAR(1000),
+    description VARCHAR,
     event_date TIMESTAMP WITHOUT TIME ZONE,
     lat FLOAT,
     lon FLOAT,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS events (
     created_on TIMESTAMP WITHOUT TIME ZONE,
     initiator_id BIGINT REFERENCES users (id),
     published_on TIMESTAMP WITHOUT TIME ZONE,
-    state VARCHAR(12),
+    state VARCHAR,
     views INTEGER,
     CONSTRAINT pk_event PRIMARY KEY (id)
 );
@@ -37,18 +37,18 @@ CREATE TABLE IF NOT EXISTS requests (
     created TIMESTAMP WITHOUT TIME ZONE,
     event_id BIGINT REFERENCES events (id) ON DELETE CASCADE,
     requester_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
-    status varchar(20),
+    status varchar,
     CONSTRAINT pk_request PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS compilations (
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
     pinned BOOLEAN,
-    title varchar(30),
+    title varchar,
     CONSTRAINT pk_compilation PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS compilation_events (
-    compilation_id BIGINT REFERENCES compilations (id) ON DELETE CASCADE,
-    event_id BIGINT REFERENCES events (id) ON DELETE SET NULL
+CREATE TABLE IF NOT EXISTS compilations_events (
+    events_id BIGINT NOT NULL REFERENCES events (id) ON DELETE SET NULL,
+    compilation_id BIGINT REFERENCES compilations (id) ON DELETE CASCADE
 );
