@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 @ToString
 public class EventDto {
     @Length(min = 3, max = 120)

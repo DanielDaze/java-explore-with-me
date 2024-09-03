@@ -6,7 +6,8 @@ import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 @ToString
 public class RequestUpdateDto {
     List<Long> requestIds;

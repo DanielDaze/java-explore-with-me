@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 @ToString
 public class EventDtoPatch {
     @Length(min = 3, max = 120)

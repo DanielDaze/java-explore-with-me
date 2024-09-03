@@ -12,7 +12,8 @@ import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 @ToString
 public class CompilationDto {
     private Set<Long> events;

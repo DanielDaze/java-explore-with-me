@@ -11,7 +11,8 @@ import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 @ToString
 public class CompilationDtoPatch {
     private Set<Long> events;

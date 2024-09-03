@@ -8,8 +8,12 @@ import java.util.Collection;
 
 public interface CompilationService {
     Compilation create(CompilationDto compDto);
+
     void delete(long compId);
+
     Compilation update(long compId, CompilationDtoPatch compDto);
+
     Compilation get(long compId);
+
     Collection<Compilation> getFiltered(boolean pinned, int from, int size);
 }

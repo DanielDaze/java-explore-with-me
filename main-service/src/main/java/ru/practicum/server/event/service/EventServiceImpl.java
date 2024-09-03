@@ -102,7 +102,7 @@ public class EventServiceImpl implements EventService {
         if (old.getState() == EventState.PUBLISHED) {
             throw new InvalidDataException("Вы уже не можете изменить это событие!");
         }
-        if (eventDto.getDescription() !=null) {
+        if (eventDto.getDescription() != null) {
             if (eventDto.getDescription().isBlank()) {
                 throw new InvalidDataException("Вы неверно ввели описание события");
             }
