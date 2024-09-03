@@ -25,7 +25,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("select e from Event as e " +
             "where (lower(e.annotation) LIKE lower(concat('%',:text,'%')) " +
             "OR lower(e.description) LIKE lower(CONCAT('%',:text,'%')) OR :text is null) " +
-            "and e.category.id in (:categories) " +
+            "and e.category.id in (:categories) or :categories is null " +
             "AND :paid is null or e.paid = :paid " +
             "AND e.eventDate between :rangeStart and :rangeEnd")
     List<Event> getEventsFiltered(String text, Long[] categories, Boolean paid,

@@ -28,7 +28,7 @@ public class PublicEventController {
     }
 
     @GetMapping("/events")
-    public Collection<Event> getSorted(@RequestParam(required = false) String text, @RequestParam Long[] categories, @RequestParam(required = false) Boolean paid,
+    public Collection<Event> getSorted(@RequestParam(required = false) String text, @RequestParam(required = false) Long[] categories, @RequestParam(required = false) Boolean paid,
                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                        @RequestParam(defaultValue = "false") Boolean onlyAvailable, @RequestParam(defaultValue = "ID") EventSearch sort,
