@@ -1,6 +1,7 @@
 package ru.practicum.server.event.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.FutureOrPresent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -30,7 +31,7 @@ public class PublicEventController {
     @GetMapping("/events")
     public Collection<Event> getSorted(@RequestParam(required = false) String text, @RequestParam(required = false) Long[] categories, @RequestParam(required = false) Boolean paid,
                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-                                       @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                       @RequestParam(required = false) @FutureOrPresent @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                        @RequestParam(defaultValue = "false") Boolean onlyAvailable, @RequestParam(defaultValue = "ID") EventSearch sort,
                                        @RequestParam(defaultValue = "0") int from, @RequestParam(defaultValue = "10") int size,
                                        HttpServletRequest servletRequest) {

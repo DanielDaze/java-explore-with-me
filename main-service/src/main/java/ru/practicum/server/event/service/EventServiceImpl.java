@@ -19,6 +19,7 @@ import ru.practicum.server.event.model.dto.EventDtoPatch;
 import ru.practicum.server.event.model.dto.EventSearch;
 import ru.practicum.server.event.model.dto.mapper.EventMapper;
 import ru.practicum.server.event.repository.EventRepository;
+import ru.practicum.server.exception.IncorrectDateException;
 import ru.practicum.server.exception.InvalidDataException;
 import ru.practicum.server.exception.NotFoundException;
 import ru.practicum.server.request.model.Request;
@@ -67,7 +68,7 @@ public class EventServiceImpl implements EventService {
     private void checkCorrectEventDate(LocalDateTime date) {
         if (date != null) {
             if (date.minusHours(2L).isBefore(LocalDateTime.now())) {
-                throw new InvalidDataException("Ваше событие начинается раньше, чем через два часа!");
+                throw new IncorrectDateException("Ваше событие начинается раньше, чем через два часа!");
             }
         }
     }
@@ -98,7 +99,7 @@ public class EventServiceImpl implements EventService {
     public Event update(long userId, long eventId, EventDtoPatch eventDto) {
         userRepository.findById(userId).orElseThrow(NotFoundException::new);
         Event old = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
-        if (old.getState() != EventState.PENDING) {
+        if (old.getState() == EventState.PUBLISHED) {
             throw new InvalidDataException("Вы уже не можете изменить это событие!");
         }
         if (eventDto.getDescription() !=null) {
@@ -120,6 +121,9 @@ public class EventServiceImpl implements EventService {
         if (eventDto.getStateAction() != null) {
             if (eventDto.getStateAction().equals("CANCEL_REVIEW")) {
                 event.setState(EventState.CANCELED);
+            }
+            if (eventDto.getStateAction().equals("SEND_TO_REVIEW")) {
+                event.setState(EventState.PENDING);
             }
         }
         Event saved = eventRepository.save(EventMapper.updateEvent(old, eventDto));

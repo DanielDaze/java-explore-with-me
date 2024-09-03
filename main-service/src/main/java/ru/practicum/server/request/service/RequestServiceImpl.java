@@ -56,9 +56,14 @@ public class RequestServiceImpl implements RequestService {
         if (request.getEvent().getState() != EventState.PUBLISHED) {
             throw new InvalidDataException("Это событие еще не было опубликовано!");
         }
-        List<Request> requestsForEvent = requestRepository.findAllByEventId(request.getEvent().getId());
-        if (requestsForEvent.size() == request.getEvent().getParticipantLimit()) {
-            throw new InvalidDataException("Превышен лимит заявок на это событие!");
+        if (request.getEvent().getParticipantLimit() != 0) {
+            List<Request> requestsForEvent = requestRepository.findAllByEventId(request.getEvent().getId());
+            if (requestsForEvent.size() == request.getEvent().getParticipantLimit()) {
+                throw new InvalidDataException("Превышен лимит заявок на это событие!");
+            }
+        }
+        if (request.getEvent().getParticipantLimit() == 0) {
+            request.setStatus(RequestStatus.CONFIRMED);
         }
         if (!request.getEvent().getRequestModeration()) {
             request.setStatus(RequestStatus.CONFIRMED);
@@ -84,8 +89,8 @@ public class RequestServiceImpl implements RequestService {
         Event event = request.getEvent();
         event.setConfirmedRequests(event.getConfirmedRequests() - 1);
         eventRepository.save(event);
-        log.info("PATCH /users/{}/requests/{}/cancel -> returning from db {}", userId, requestId, saved);
         RequestDto dto = RequestMapper.mapToRequestDto(saved);
+        log.info("PATCH /users/{}/requests/{}/cancel -> returning from db {}", userId, requestId, dto);
         return dto;
     }
 
@@ -94,8 +99,8 @@ public class RequestServiceImpl implements RequestService {
     public Collection<RequestDto> getRequestsForEvent(long userId, long eventId) {
         eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
         List<Request> requests = requestRepository.findAllByEventId(eventId);
-        log.info("GET /users/{}/events/{}/requests -> returning form db {}", userId, eventId, requests);
         List<RequestDto> dtos = requests.stream().map(RequestMapper::mapToRequestDto).toList();
+        log.info("GET /users/{}/events/{}/requests -> returning form db {}", userId, eventId, dtos);
         return dtos;
     }
 

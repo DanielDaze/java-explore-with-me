@@ -31,4 +31,11 @@ public class ErrorHandler {
         log.error(e.getMessage());
         return new ErrorBody(e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorBody handleIncorrectDateException(final IncorrectDateException e) {
+        log.error("Пользователь неверно ввел даты проведения события");
+        return new ErrorBody(e.getMessage());
+    }
 }
