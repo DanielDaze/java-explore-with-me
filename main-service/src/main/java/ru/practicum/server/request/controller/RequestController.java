@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.server.request.model.Request;
 import ru.practicum.server.request.model.dto.RequestDto;
+import ru.practicum.server.request.model.dto.RequestStatusUpdate;
 import ru.practicum.server.request.model.dto.RequestUpdateDto;
 import ru.practicum.server.request.service.RequestService;
 
@@ -43,7 +43,7 @@ public class RequestController {
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
-    public Collection<Request> confirmRequests(@PathVariable long userId, @PathVariable long eventId,
+    public RequestStatusUpdate confirmRequests(@PathVariable long userId, @PathVariable long eventId,
                                                @RequestBody RequestUpdateDto dto) {
         log.info("PATCH /users/{}/events/{}/requests <- {}", userId, eventId, dto);
         return requestService.confirmRequests(userId, eventId, dto);

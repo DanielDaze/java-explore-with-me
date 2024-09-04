@@ -12,6 +12,7 @@ import ru.practicum.server.exception.NotFoundException;
 import ru.practicum.server.request.model.Request;
 import ru.practicum.server.request.model.RequestStatus;
 import ru.practicum.server.request.model.dto.RequestDto;
+import ru.practicum.server.request.model.dto.RequestStatusUpdate;
 import ru.practicum.server.request.model.dto.RequestUpdateDto;
 import ru.practicum.server.request.model.dto.mapper.RequestMapper;
 import ru.practicum.server.request.repository.RequestRepository;
@@ -109,7 +110,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    public Collection<Request> confirmRequests(long userId, long eventId, RequestUpdateDto dto) {
+    public RequestStatusUpdate confirmRequests(long userId, long eventId, RequestUpdateDto dto) {
         Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
         List<Request> confirmedRequests = requestRepository.findAllByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
         List<Request> requests = requestRepository.findAllById(dto.getRequestIds());
@@ -135,12 +136,21 @@ public class RequestServiceImpl implements RequestService {
                 }
                 List<Request> saved = requestRepository.saveAll(requests);
                 eventRepository.save(event);
+                RequestStatusUpdate requestStatusUpdate = null;
+                if (dto.getStatus().equals("CONFIRMED")) {
+                    List<RequestDto> requestDtos = saved.stream().map(RequestMapper::mapToRequestDto).toList();
+                    requestStatusUpdate = new RequestStatusUpdate(requestDtos, List.of());
+                }
+                if (dto.getStatus().equals("REJECTED")) {
+                    List<RequestDto> requestDtos = saved.stream().map(RequestMapper::mapToRequestDto).toList();
+                    requestStatusUpdate = new RequestStatusUpdate(List.of(), requestDtos);
+                }
                 log.info("PATCH /users/{}/events/{}/requests -> returning from db {}", userId, eventId, requests);
-                return saved;
+                return requestStatusUpdate;
             }
         }
         eventRepository.save(event);
         log.info("PATCH /users/{}/events/{}/requests -> returning from db {}", userId, eventId, requests);
-        return List.of();
+        return new RequestStatusUpdate();
     }
 }
