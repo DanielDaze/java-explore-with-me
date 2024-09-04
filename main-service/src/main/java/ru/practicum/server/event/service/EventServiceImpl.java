@@ -221,7 +221,7 @@ public class EventServiceImpl implements EventService {
         if (rangeEnd == null) {
             rangeEnd = LocalDateTime.now().plusYears(10);
         }
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by(sortBy));
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by(sortBy).descending());
         List<Event> events = eventRepository.getEventsFiltered(text, categories, paid, rangeStart, rangeEnd, pageable);
         if (onlyAvailable) {
             List<Event> availableEvents = new ArrayList<>();

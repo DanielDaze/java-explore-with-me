@@ -35,7 +35,7 @@ public class PublicEventController {
                                        @RequestParam(defaultValue = "false") Boolean onlyAvailable, @RequestParam(defaultValue = "ID") EventSearch sort,
                                        @RequestParam(defaultValue = "0") int from, @RequestParam(defaultValue = "10") int size,
                                        HttpServletRequest servletRequest) {
-        log.info("GET /events <-");
+        log.info("GET /events <- with text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}, onlyAvailable={}, sort={}", text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort);
         return eventService.publicGetSorted(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, servletRequest);
     }
 }
