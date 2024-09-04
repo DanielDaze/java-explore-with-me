@@ -39,8 +39,6 @@ public class RequestServiceImpl implements RequestService {
         Request request = new Request(null, LocalDateTime.now(), event, requester, RequestStatus.PENDING);
         validateRequest(request);
         Request saved = requestRepository.save(request);
-        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-        eventRepository.save(event);
         RequestDto dto = RequestMapper.mapToRequestDto(saved);
         log.info("POST /users/{}/requests -> returning from db {}", userId, dto);
         return dto;
@@ -57,16 +55,21 @@ public class RequestServiceImpl implements RequestService {
             throw new InvalidDataException("Это событие еще не было опубликовано!");
         }
         if (request.getEvent().getParticipantLimit() != 0) {
-            List<Request> requestsForEvent = requestRepository.findAllByEventId(request.getEvent().getId());
-            if (requestsForEvent.size() == request.getEvent().getParticipantLimit()) {
+            if (request.getEvent().getConfirmedRequests().equals(request.getEvent().getParticipantLimit())) {
                 throw new InvalidDataException("Превышен лимит заявок на это событие!");
             }
         }
         if (request.getEvent().getParticipantLimit() == 0) {
+            Event event = request.getEvent();
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+            eventRepository.save(event);
             request.setStatus(RequestStatus.CONFIRMED);
         }
         if (!request.getEvent().getRequestModeration()) {
             request.setStatus(RequestStatus.CONFIRMED);
+            Event event = request.getEvent();
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+            eventRepository.save(event);
         }
     }
 
