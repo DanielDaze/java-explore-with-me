@@ -128,7 +128,7 @@ public class RequestServiceImpl implements RequestService {
                         } else {
                             request.setStatus(RequestStatus.CONFIRMED);
                             confirmedRequests.add(request);
-                            event.setConfirmedRequests(event.getConfirmedRequests());
+                            event.setConfirmedRequests(confirmedRequests.size());
                         }
                     }
                 } else if (dto.getStatus().equals("REJECTED")) {

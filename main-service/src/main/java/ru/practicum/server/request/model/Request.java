@@ -27,10 +27,12 @@ public class Request {
 
     @ManyToOne
     @JoinColumn(name = "event_id")
+    @ToString.Exclude
     Event event;
 
     @ManyToOne
     @JoinColumn(name = "requester_id")
+    @ToString.Exclude
     User requester;
 
     @Enumerated(EnumType.STRING)

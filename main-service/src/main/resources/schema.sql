@@ -1,22 +1,22 @@
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
-    email VARCHAR UNIQUE,
-    name VARCHAR,
+    email VARCHAR(254) UNIQUE,
+    name VARCHAR(250),
     CONSTRAINT pk_user PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS categories (
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
-    name VARCHAR UNIQUE,
+    name VARCHAR(50) UNIQUE,
     CONSTRAINT pk_category PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS events (
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
-    title VARCHAR,
-    annotation VARCHAR,
+    title VARCHAR(120),
+    annotation VARCHAR(2000),
     category_id BIGINT REFERENCES categories (id),
-    description VARCHAR,
+    description VARCHAR(7000),
     event_date TIMESTAMP WITHOUT TIME ZONE,
     lat FLOAT,
     lon FLOAT,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS requests (
 CREATE TABLE IF NOT EXISTS compilations (
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
     pinned BOOLEAN,
-    title varchar,
+    title varchar(50),
     CONSTRAINT pk_compilation PRIMARY KEY (id)
 );
 
