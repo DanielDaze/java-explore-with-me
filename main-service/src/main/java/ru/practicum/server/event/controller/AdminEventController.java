@@ -14,18 +14,19 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 
 @RestController
+@RequestMapping("/admin/events")
 @RequiredArgsConstructor
 @Slf4j
 public class AdminEventController {
     private final EventService eventService;
 
-    @PatchMapping("/admin/events/{eventId}")
+    @PatchMapping("/{eventId}")
     public Event patch(@PathVariable long eventId, @RequestBody @Valid EventDtoPatch eventDto) {
         log.info("PATCH /admin/events/{} <- {}", eventId, eventDto);
         return eventService.adminUpdate(eventId, eventDto);
     }
 
-    @GetMapping("/admin/events")
+    @GetMapping
     public Collection<Event> get(@RequestParam(required = false) Long[] users, @RequestParam(required = false) EventState[] states, @RequestParam(required = false) Long[] categories,
                                  @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                  @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,

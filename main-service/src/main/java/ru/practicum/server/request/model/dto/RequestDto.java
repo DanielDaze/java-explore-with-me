@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 public class RequestDto {
-    Long id;
+    private Long id;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime created;
-    Long event;
-    Long requester;
-    RequestStatus status;
+    private LocalDateTime created;
+    private Long event;
+    private Long requester;
+    private RequestStatus status;
 }

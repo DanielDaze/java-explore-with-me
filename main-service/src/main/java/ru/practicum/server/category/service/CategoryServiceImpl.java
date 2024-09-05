@@ -49,6 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Collection<Category> getAll(int from, int size) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Category> categories = categoryRepository.findAll(pageable).getContent();
@@ -57,6 +58,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Category get(long catId) {
         Category category = categoryRepository.findById(catId).orElseThrow(NotFoundException::new);
         log.info("GET /categories/{} -> returning from db {}", catId, category);

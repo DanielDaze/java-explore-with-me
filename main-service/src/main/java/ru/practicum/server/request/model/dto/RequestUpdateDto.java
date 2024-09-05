@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 @ToString
 public class RequestUpdateDto {
-    List<Long> requestIds;
-    String status;
+    private List<Long> requestIds;
+    private String status;
 }

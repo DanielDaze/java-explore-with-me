@@ -22,14 +22,10 @@ import ru.practicum.server.event.repository.EventRepository;
 import ru.practicum.server.exception.IncorrectDateException;
 import ru.practicum.server.exception.InvalidDataException;
 import ru.practicum.server.exception.NotFoundException;
-import ru.practicum.server.request.model.Request;
-import ru.practicum.server.request.model.RequestStatus;
-import ru.practicum.server.request.repository.RequestRepository;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,7 +37,6 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private final RequestRepository requestRepository;
 
     @Override
     @Transactional
@@ -204,7 +199,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Collection<Event> publicGetSorted(String text, Long[] categories, Boolean paid, LocalDateTime rangeStart,
                                              LocalDateTime rangeEnd, Boolean onlyAvailable, EventSearch sort,
                                              int from, int size, HttpServletRequest servletRequest) {
@@ -222,16 +217,11 @@ public class EventServiceImpl implements EventService {
             rangeEnd = LocalDateTime.now().plusYears(10);
         }
         Pageable pageable = PageRequest.of(from / size, size, Sort.by(sortBy).descending());
-        List<Event> events = eventRepository.getEventsFiltered(text, categories, paid, rangeStart, rangeEnd, pageable);
+        List<Event> events;
         if (onlyAvailable) {
-            List<Event> availableEvents = new ArrayList<>();
-            for (Event event : events) {
-                List<Request> confirmedRequests = requestRepository.findAllByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED);
-                if (confirmedRequests.size() == event.getParticipantLimit()) {
-                    availableEvents.add(event);
-                }
-            }
-            return availableEvents;
+            events = eventRepository.getAvailableEventsFiltered(text, categories, paid, rangeStart, rangeEnd, pageable);
+        } else {
+            events = eventRepository.getEventsFiltered(text, categories, paid, rangeStart, rangeEnd, pageable);
         }
         log.info("GET /events -> returning from db");
         return events;

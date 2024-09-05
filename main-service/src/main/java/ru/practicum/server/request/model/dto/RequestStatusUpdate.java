@@ -14,6 +14,6 @@ import java.util.List;
 @Setter
 @ToString
 public class RequestStatusUpdate {
-    List<RequestDto> confirmedRequests;
-    List<RequestDto> rejectedRequests;
+    private List<RequestDto> confirmedRequests;
+    private List<RequestDto> rejectedRequests;
 }

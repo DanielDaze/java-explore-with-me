@@ -60,6 +60,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Compilation get(long compId) {
         Compilation compilation = compilationRepository.findById(compId).orElseThrow(NotFoundException::new);
         log.info("GET /compilations/{} -> returning from db {}", compId, compilation);
@@ -67,6 +68,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Collection<Compilation> getFiltered(boolean pinned, int from, int size) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageable);

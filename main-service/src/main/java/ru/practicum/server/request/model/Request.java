@@ -21,20 +21,20 @@ import java.time.LocalDateTime;
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    LocalDateTime created;
+    private LocalDateTime created;
 
     @ManyToOne
     @JoinColumn(name = "event_id")
     @ToString.Exclude
-    Event event;
+    private Event event;
 
     @ManyToOne
     @JoinColumn(name = "requester_id")
     @ToString.Exclude
-    User requester;
+    private User requester;
 
     @Enumerated(EnumType.STRING)
-    RequestStatus status;
+    private RequestStatus status;
 }
