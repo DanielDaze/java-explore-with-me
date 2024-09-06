@@ -36,10 +36,11 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/admin/users",
+					"raw": "localhost:8080/admin/users",
 					"host": [
-						"{{baseUrl}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"admin",
 						"users"
@@ -77,10 +78,11 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/138/events",
+					"raw": "localhost:8080/users/138/events",
 					"host": [
-						"{{baseUrl}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"users",
 						"138",
@@ -108,10 +110,11 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/138/events/107/like?likerId=20",
+					"raw": "localhost:8080/users/138/events/107/like?likerId=20",
 					"host": [
-						"{{baseUrl}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"users",
 						"138",
@@ -158,10 +161,11 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/admin/events/107",
+					"raw": "localhost:8080/admin/events/107",
 					"host": [
-						"{{baseUrl}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"admin",
 						"events",
@@ -189,10 +193,11 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/138/events/107/like?likerId=138",
+					"raw": "localhost:8080/users/138/events/107/like?likerId=138",
 					"host": [
-						"{{baseUrl}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"users",
 						"138",
@@ -230,10 +235,11 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/138/events/107/like?likerId=20",
+					"raw": "localhost:8080/users/138/events/107/like?likerId=20",
 					"host": [
-						"{{baseUrl}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"users",
 						"138",
@@ -269,10 +275,11 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/138/events/107/dislike?dislikerId=20",
+					"raw": "localhost:8080/users/138/events/107/dislike?dislikerId=20",
 					"host": [
-						"{{baseUrl}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"users",
 						"138",
@@ -308,10 +315,11 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/138/events/107/like?likerId=20",
+					"raw": "localhost:8080/users/138/events/107/like?likerId=20",
 					"host": [
-						"{{baseUrl}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"users",
 						"138",
@@ -358,10 +366,11 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/138/events/107/dislike?dislikerId=20",
+					"raw": "localhost:8080/users/138/events/107/dislike?dislikerId=20",
 					"host": [
-						"{{baseUrl}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"users",
 						"138",
@@ -397,10 +406,11 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/138/events/107/dislike?dislikerId=20",
+					"raw": "localhost:8080/users/138/events/107/dislike?dislikerId=20",
 					"host": [
-						"{{baseUrl}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"users",
 						"138",
@@ -438,10 +448,11 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/events?sort=RATING",
+					"raw": "localhost:8080/events?sort=RATING",
 					"host": [
-						"{{baseUrl}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"events"
 					],
