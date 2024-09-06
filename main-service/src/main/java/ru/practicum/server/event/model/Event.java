@@ -8,6 +8,7 @@ import ru.practicum.server.event.model.dto.Location;
 import ru.practicum.server.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -74,6 +75,16 @@ public class Event {
 
     @Column(name = "views")
     private Integer views;
+
+    @ManyToMany
+    @ToString.Exclude
+    private List<User> likes;
+
+    @ManyToMany
+    @ToString.Exclude
+    private List<User> dislikes;
+
+    private Integer rating;
 
     public Event(String title, String annotation, String description, LocalDateTime eventDate, Location location, Boolean paid, Integer participantLimit, Boolean requestModeration) {
         this.title = title;

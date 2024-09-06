@@ -26,6 +26,7 @@ import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -58,6 +59,9 @@ public class EventServiceImpl implements EventService {
         event.setConfirmedRequests(0);
         event.setCreatedOn(LocalDateTime.now());
         event.setState(EventState.PENDING);
+        event.setRating(0);
+        event.setLikes(new ArrayList<>());
+        event.setDislikes(new ArrayList<>());
     }
 
     private void checkCorrectEventDate(LocalDateTime date) {
@@ -208,6 +212,7 @@ public class EventServiceImpl implements EventService {
         switch (sort) {
             case EVENT_DATE -> sortBy = "eventDate";
             case VIEWS -> sortBy = "views";
+            case RATING -> sortBy = "rating";
             default -> sortBy = "id";
         }
         if (rangeStart == null) {
@@ -225,5 +230,79 @@ public class EventServiceImpl implements EventService {
         }
         log.info("GET /events -> returning from db");
         return events;
+    }
+
+    @Override
+    @Transactional
+    public Event like(long userId, long eventId, long likerId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
+        if (event.getState() != EventState.PUBLISHED) {
+            throw new InvalidDataException("Это событие еще не было опубликовано!");
+        }
+        User liker = userRepository.findById(likerId).orElseThrow(NotFoundException::new);
+        if (event.getInitiator().getId() == likerId) {
+            throw new InvalidDataException("Вы не можете лайкнуть собственное событие!");
+        }
+        if (event.getDislikes().contains(liker)) {
+            throw new InvalidDataException("Вы не можете лайкнуть событие, которому поставили дизлайк!");
+        }
+        if (event.getLikes().contains(liker)) {
+            throw new InvalidDataException("Вы уже лайкнули это событие!");
+        }
+        event.getLikes().add(liker);
+        event.setRating(event.getLikes().size() - event.getDislikes().size());
+        event = eventRepository.save(event);
+        log.info("POST /users/{}/events/{}/like -> returning {} from db", userId, eventId, event);
+        return event;
+    }
+
+    @Override
+    @Transactional
+    public void removeLike(long userId, long eventId, long likerId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
+        User liker = userRepository.findById(likerId).orElseThrow(NotFoundException::new);
+        if (!event.getLikes().contains(liker)) {
+            throw new InvalidDataException("Вы не лайкали это событие!");
+        }
+        event.getLikes().remove(liker);
+        event.setRating(event.getLikes().size() - event.getDislikes().size());
+        eventRepository.save(event);
+    }
+
+    @Override
+    @Transactional
+    public Event dislike(long userId, long eventId, long dislikerId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
+        if (event.getState() != EventState.PUBLISHED) {
+            throw new InvalidDataException("Это событие еще не было опубликовано!");
+        }
+        User disliker = userRepository.findById(dislikerId).orElseThrow(NotFoundException::new);
+        if (event.getInitiator().getId() == dislikerId) {
+            throw new InvalidDataException("Вы не можете лайкнуть собственное событие!");
+        }
+        if (event.getLikes().contains(disliker)) {
+            throw new InvalidDataException("Вы не можете дизлайкнуть событие, которому поставили лайк!");
+        }
+        if (event.getDislikes().contains(disliker)) {
+            throw new InvalidDataException("Вы уже лайкнули это событие!");
+        }
+        event.getDislikes().add(disliker);
+        event.setRating(event.getLikes().size() - event.getDislikes().size());
+        event = eventRepository.save(event);
+        log.info("POST /users/{}/events/{}/dislike -> returning {} from db", userId, eventId, event);
+        return event;
+    }
+
+    @Override
+    @Transactional
+    public void  removeDislike(long userId, long eventId, long dislikerId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
+        User disliker = userRepository.findById(dislikerId).orElseThrow(NotFoundException::new);
+        if (!event.getDislikes().contains(disliker)) {
+            throw new InvalidDataException("Вы не дизлайкали это событие!");
+        }
+        event.getDislikes().remove(disliker);
+        event.setRating(event.getLikes().size() - event.getDislikes().size());
+        eventRepository.save(event);
     }
 }
