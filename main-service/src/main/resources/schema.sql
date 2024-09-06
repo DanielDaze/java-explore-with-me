@@ -55,11 +55,11 @@ CREATE TABLE IF NOT EXISTS compilations_events (
 );
 
 CREATE TABLE IF NOT EXISTS events_likes (
-    events_id BIGINT NOT NULL REFERENCES events (id) ON DELETE SET NULL,
-    user_id BIGINT REFERENCES users (id) ON DELETE CASCADE
+    event_id BIGINT NOT NULL REFERENCES events (id) ON DELETE SET NULL,
+    likes_id BIGINT REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS events_dislikes (
-    events_id BIGINT NOT NULL REFERENCES events (id) ON DELETE SET NULL,
-    user_id BIGINT REFERENCES users (id) ON DELETE CASCADE
+    event_id BIGINT NOT NULL REFERENCES events (id) ON DELETE SET NULL,
+    dislikes_id BIGINT REFERENCES users (id) ON DELETE CASCADE
 );
