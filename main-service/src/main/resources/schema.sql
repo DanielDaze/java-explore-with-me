@@ -54,12 +54,12 @@ CREATE TABLE IF NOT EXISTS compilations_events (
     compilation_id BIGINT REFERENCES compilations (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS likes_events (
+CREATE TABLE IF NOT EXISTS events_likes (
     events_id BIGINT NOT NULL REFERENCES events (id) ON DELETE SET NULL,
     user_id BIGINT REFERENCES users (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS dislikes_events (
+CREATE TABLE IF NOT EXISTS events_dislikes (
     events_id BIGINT NOT NULL REFERENCES events (id) ON DELETE SET NULL,
     user_id BIGINT REFERENCES users (id) ON DELETE CASCADE
 );
