@@ -20,5 +20,5 @@ import java.io.Serializable;
 public class LikeInfoId implements Serializable {
     private Long eventId;
 
-    private Long likesId;
+    private Long estimaterId;
 }
