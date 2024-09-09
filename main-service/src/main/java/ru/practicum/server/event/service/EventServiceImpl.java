@@ -22,13 +22,17 @@ import ru.practicum.server.event.repository.EventRepository;
 import ru.practicum.server.exception.IncorrectDateException;
 import ru.practicum.server.exception.InvalidDataException;
 import ru.practicum.server.exception.NotFoundException;
+import ru.practicum.server.like.model.LikeInfo;
+import ru.practicum.server.like.model.LikeInfoId;
+import ru.practicum.server.like.repository.LikeRepository;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +42,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final LikeRepository likeRepository;
 
     @Override
     @Transactional
@@ -60,8 +65,6 @@ public class EventServiceImpl implements EventService {
         event.setCreatedOn(LocalDateTime.now());
         event.setState(EventState.PENDING);
         event.setRating(0);
-        event.setLikes(new ArrayList<>());
-        event.setDislikes(new ArrayList<>());
     }
 
     private void checkCorrectEventDate(LocalDateTime date) {
@@ -79,6 +82,8 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
         event.setViews(event.getViews() + 1);
         eventRepository.save(event);
+        Integer rating = likeRepository.findRatingByEventId(eventId);
+        event.setRating(Objects.requireNonNullElse(rating, 0));
         log.info("GET /users/{}/events/{} -> returning from db {}", userId, eventId, event);
         return event;
     }
@@ -89,6 +94,10 @@ public class EventServiceImpl implements EventService {
         userRepository.findById(userId).orElseThrow(NotFoundException::new);
         Pageable pageable = PageRequest.of(from / size, size);
         List<Event> events = eventRepository.findByInitiatorId(userId, pageable);
+        for (Event event : events) {
+            Integer rating = likeRepository.findRatingByEventId(event.getId());
+            event.setRating(Objects.requireNonNullElse(rating, 0));
+        }
         log.info("GET /users/{}/events ->", userId);
         return events;
     }
@@ -126,6 +135,8 @@ public class EventServiceImpl implements EventService {
             }
         }
         Event saved = eventRepository.save(EventMapper.updateEvent(old, eventDto));
+        Integer rating = likeRepository.findRatingByEventId(event.getId());
+        event.setRating(Objects.requireNonNullElse(rating, 0));
         log.info("PATCH /users/{}/events/{} -> returning from db {}", userId, eventId, saved);
         return saved;
     }
@@ -164,6 +175,8 @@ public class EventServiceImpl implements EventService {
             }
         }
         Event saved = eventRepository.save(updated);
+        Integer rating = likeRepository.findRatingByEventId(event.getId());
+        event.setRating(Objects.requireNonNullElse(rating, 0));
         log.info("PATCH /admin/events/{} -> returning from db {}", eventId, saved);
         return saved;
     }
@@ -184,6 +197,10 @@ public class EventServiceImpl implements EventService {
             rangeEnd = LocalDateTime.now().plusYears(100);
         }
         List<Event> events = eventRepository.adminGet(users, states, categories, rangeStart, rangeEnd, pageable);
+        for (Event event : events) {
+            Integer rating = likeRepository.findRatingByEventId(event.getId());
+            event.setRating(Objects.requireNonNullElse(rating, 0));
+        }
         log.info("GET /admin/events -> returning from db");
         return events;
     }
@@ -198,6 +215,8 @@ public class EventServiceImpl implements EventService {
         }
         event.setViews(event.getViews() + 1);
         eventRepository.save(event);
+        Integer rating = likeRepository.findRatingByEventId(event.getId());
+        event.setRating(Objects.requireNonNullElse(rating, 0));
         log.info("/GET /events/{} -> returning from db {}", eventId, event);
         return event;
     }
@@ -212,7 +231,6 @@ public class EventServiceImpl implements EventService {
         switch (sort) {
             case EVENT_DATE -> sortBy = "eventDate";
             case VIEWS -> sortBy = "views";
-            case RATING -> sortBy = "rating";
             default -> sortBy = "id";
         }
         if (rangeStart == null) {
@@ -228,6 +246,13 @@ public class EventServiceImpl implements EventService {
         } else {
             events = eventRepository.getEventsFiltered(text, categories, paid, rangeStart, rangeEnd, pageable);
         }
+        for (Event event : events) {
+            Integer rating = likeRepository.findRatingByEventId(event.getId());
+            event.setRating(Objects.requireNonNullElse(rating, 0));
+        }
+        if (sort == EventSearch.RATING) {
+            events.sort(Comparator.comparing(Event::getRating).reversed());
+        }
         log.info("GET /events -> returning from db");
         return events;
     }
@@ -239,19 +264,13 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != EventState.PUBLISHED) {
             throw new InvalidDataException("Это событие еще не было опубликовано!");
         }
-        User liker = userRepository.findById(likerId).orElseThrow(NotFoundException::new);
+        userRepository.findById(likerId).orElseThrow(NotFoundException::new);
         if (event.getInitiator().getId() == likerId) {
             throw new InvalidDataException("Вы не можете лайкнуть собственное событие!");
         }
-        if (event.getDislikes().contains(liker)) {
-            throw new InvalidDataException("Вы не можете лайкнуть событие, которому поставили дизлайк!");
-        }
-        if (event.getLikes().contains(liker)) {
-            throw new InvalidDataException("Вы уже лайкнули это событие!");
-        }
-        event.getLikes().add(liker);
-        event.setRating(event.getLikes().size() - event.getDislikes().size());
-        event = eventRepository.save(event);
+        likeRepository.save(new LikeInfo(eventId, likerId, 1));
+        Integer rating = likeRepository.findRatingByEventId(event.getId());
+        event.setRating(Objects.requireNonNullElse(rating, 0));
         log.info("POST /users/{}/events/{}/like -> returning {} from db", userId, eventId, event);
         return event;
     }
@@ -259,14 +278,9 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void removeLike(long userId, long eventId, long likerId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
-        User liker = userRepository.findById(likerId).orElseThrow(NotFoundException::new);
-        if (!event.getLikes().contains(liker)) {
-            throw new InvalidDataException("Вы не лайкали это событие!");
-        }
-        event.getLikes().remove(liker);
-        event.setRating(event.getLikes().size() - event.getDislikes().size());
-        eventRepository.save(event);
+        eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
+        userRepository.findById(likerId).orElseThrow(NotFoundException::new);
+        likeRepository.deleteById(new LikeInfoId(eventId, likerId));
     }
 
     @Override
@@ -276,33 +290,22 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != EventState.PUBLISHED) {
             throw new InvalidDataException("Это событие еще не было опубликовано!");
         }
-        User disliker = userRepository.findById(dislikerId).orElseThrow(NotFoundException::new);
+        userRepository.findById(dislikerId).orElseThrow(NotFoundException::new);
         if (event.getInitiator().getId() == dislikerId) {
             throw new InvalidDataException("Вы не можете лайкнуть собственное событие!");
         }
-        if (event.getLikes().contains(disliker)) {
-            throw new InvalidDataException("Вы не можете дизлайкнуть событие, которому поставили лайк!");
-        }
-        if (event.getDislikes().contains(disliker)) {
-            throw new InvalidDataException("Вы уже лайкнули это событие!");
-        }
-        event.getDislikes().add(disliker);
-        event.setRating(event.getLikes().size() - event.getDislikes().size());
-        event = eventRepository.save(event);
+        likeRepository.save(new LikeInfo(eventId, dislikerId, -1));
+        Integer rating = likeRepository.findRatingByEventId(event.getId());
+        event.setRating(Objects.requireNonNullElse(rating, 0));
         log.info("POST /users/{}/events/{}/dislike -> returning {} from db", userId, eventId, event);
         return event;
     }
 
     @Override
     @Transactional
-    public void  removeDislike(long userId, long eventId, long dislikerId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
-        User disliker = userRepository.findById(dislikerId).orElseThrow(NotFoundException::new);
-        if (!event.getDislikes().contains(disliker)) {
-            throw new InvalidDataException("Вы не дизлайкали это событие!");
-        }
-        event.getDislikes().remove(disliker);
-        event.setRating(event.getLikes().size() - event.getDislikes().size());
-        eventRepository.save(event);
+    public void removeDislike(long userId, long eventId, long dislikerId) {
+        eventRepository.findById(eventId).orElseThrow(NotFoundException::new);
+        userRepository.findById(dislikerId).orElseThrow(NotFoundException::new);
+        likeRepository.deleteById(new LikeInfoId(eventId, dislikerId));
     }
 }

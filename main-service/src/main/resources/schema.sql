@@ -29,7 +29,6 @@ CREATE TABLE IF NOT EXISTS events (
     published_on TIMESTAMP WITHOUT TIME ZONE,
     state VARCHAR,
     views INTEGER,
-    rating INTEGER,
     CONSTRAINT pk_event PRIMARY KEY (id)
 );
 
@@ -56,10 +55,8 @@ CREATE TABLE IF NOT EXISTS compilations_events (
 
 CREATE TABLE IF NOT EXISTS events_likes (
     event_id BIGINT NOT NULL REFERENCES events (id) ON DELETE SET NULL,
-    likes_id BIGINT REFERENCES users (id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS events_dislikes (
-    event_id BIGINT NOT NULL REFERENCES events (id) ON DELETE SET NULL,
-    dislikes_id BIGINT REFERENCES users (id) ON DELETE CASCADE
+    likes_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
+    positive INTEGER,
+    CONSTRAINT pk_likes PRIMARY KEY (event_id, likes_id),
+    CONSTRAINT positive_values CHECK (positive = 1 OR positive = -1)
 );
