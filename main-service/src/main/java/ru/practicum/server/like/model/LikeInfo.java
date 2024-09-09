@@ -25,8 +25,8 @@ public class LikeInfo {
     private Long eventId;
 
     @Id
-    @Column(name = "likes_id")
-    private Long likesId;
+    @Column(name = "estimater_id")
+    private Long estimaterId;
 
     @Column(name = "positive")
     private Integer positive;
